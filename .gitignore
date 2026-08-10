@@ -1,0 +1,59 @@
+# Python environments and bytecode
+.venv/
+venv/
+env/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Python tooling caches and coverage output
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Packaging output
+build/
+dist/
+*.egg-info/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Local editors and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Repository-local temporary and debug output
+tmp_query.png
+debug_color_masks/
+*.tmp
+*.temp
+*.log
+
+# Dataset files downloaded or extracted locally
+dataset/data/
+dataset/extracted_images/
+dataset/evaluation_images/
+dataset/extracted_captions/
+
+# Transient evaluation workflow output
+evaluation/new_items_to_grade.csv
+evaluation/query_metadata.csv
+evaluation/judgments_before_dedup.csv
+
+# Version-aligned generated search artifacts
+embeddings/embeddings.npy
+embeddings/embeddings_updated.npy
+embeddings/image_paths.pkl
+embeddings/image_paths_updated.pkl
+embeddings/metadata.pkl
+index/faiss.index

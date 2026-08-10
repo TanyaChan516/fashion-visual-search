@@ -1,0 +1,11 @@
+faiss-cpu
+matplotlib
+natsort
+numpy
+open_clip_torch
+opencv-python
+pandas
+pyarrow
+Pillow
+streamlit
+torch

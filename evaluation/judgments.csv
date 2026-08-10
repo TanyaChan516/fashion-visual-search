@@ -1,0 +1,598 @@
+query_id,query_filename,product_filename,product_category,product_primary_color,faiss_rank,rerank_rank,result_source,relevance
+q002,image_10023.png,image_8678.png,blouse,white,1,1,both,2
+q002,image_10023.png,image_3357.png,blouse,white,2,2,both,2
+q002,image_10023.png,image_8815.png,blouse,white,3,3,both,2
+q002,image_10023.png,image_2022.png,blouse,white,4,8,both,2
+q002,image_10023.png,image_8896.png,blouse,red,5,,faiss_only,2
+q002,image_10023.png,image_6706.png,blouse,black,6,,faiss_only,2
+q002,image_10023.png,image_1719.png,blouse,white,7,10,both,3
+q002,image_10023.png,image_7621.png,blouse,white,8,4,both,2
+q002,image_10023.png,image_3328.png,blouse,grey,9,,faiss_only,2
+q002,image_10023.png,image_6918.png,t-shirt,blue,10,,faiss_only,1
+q002,image_10023.png,image_4135.png,blouse,white,11,5,both,2
+q002,image_10023.png,image_7235.png,blouse,white,12,16,both,3
+q002,image_10023.png,image_6988.png,blouse,white,13,20,both,3
+q002,image_10023.png,image_9404.png,blouse,white,14,15,both,3
+q002,image_10023.png,image_8146.png,blouse,white,15,6,both,3
+q002,image_10023.png,image_2364.png,t-shirt,brown,16,,faiss_only,0
+q002,image_10023.png,image_1111.png,t-shirt,white,17,,faiss_only,1
+q002,image_10023.png,image_9108.png,blouse,grey,18,,faiss_only,2
+q002,image_10023.png,image_3471.png,blouse,white,19,7,both,2
+q002,image_10023.png,image_3688.png,blouse,white,20,9,both,1
+q002,image_10023.png,image_4155.png,blouse,white,,11,rerank_only,2
+q002,image_10023.png,image_7324.png,blouse,white,,12,rerank_only,3
+q002,image_10023.png,image_3951.png,blouse,white,,13,rerank_only,2
+q002,image_10023.png,image_8755.png,blouse,white,,14,rerank_only,2
+q002,image_10023.png,image_4000.png,blouse,white,,17,rerank_only,3
+q002,image_10023.png,image_9387.png,blouse,white,,18,rerank_only,2
+q002,image_10023.png,image_4638.png,blouse,white,,19,rerank_only,3
+q003,image_10140.png,image_7477.png,blouse,blue,1,1,both,3
+q003,image_10140.png,image_3955.png,blouse,blue,2,6,both,3
+q003,image_10140.png,image_9815.png,tank top,blue,3,,faiss_only,2
+q003,image_10140.png,image_5740.png,blouse,blue,4,4,both,2
+q003,image_10140.png,image_5830.png,blouse,pink,5,,faiss_only,2
+q003,image_10140.png,image_7865.png,blouse,blue,6,2,both,3
+q003,image_10140.png,image_1981.png,blouse,blue,7,11,both,3
+q003,image_10140.png,image_8794.png,blouse,green,8,18,both,2
+q003,image_10140.png,image_5985.png,blouse,blue,9,5,both,2
+q003,image_10140.png,image_4386.png,blouse,black,10,,faiss_only,1
+q003,image_10140.png,image_5518.png,blouse,blue,11,,faiss_only,2
+q003,image_10140.png,image_5601.png,blouse,black,12,16,both,2
+q003,image_10140.png,image_5932.png,blouse,blue,13,12,both,3
+q003,image_10140.png,image_4698.png,blouse,blue,14,,faiss_only,2
+q003,image_10140.png,image_3561.png,blouse,blue,15,3,both,3
+q003,image_10140.png,image_8998.png,blouse,orange,16,,faiss_only,2
+q003,image_10140.png,image_5092.png,tank top,blue,17,,faiss_only,2
+q003,image_10140.png,image_4019.png,blouse,blue,18,10,both,2
+q003,image_10140.png,image_8744.png,blouse,blue,19,7,both,3
+q003,image_10140.png,image_2335.png,blouse,red,20,,faiss_only,2
+q003,image_10140.png,image_7440.png,blouse,blue,,8,rerank_only,3
+q003,image_10140.png,image_1880.png,blouse,black,,9,rerank_only,3
+q003,image_10140.png,image_7689.png,blouse,blue,,13,rerank_only,2
+q003,image_10140.png,image_4786.png,blouse,blue,,14,rerank_only,2
+q003,image_10140.png,image_879.png,blouse,blue,,15,rerank_only,3
+q003,image_10140.png,image_3520.png,blouse,grey,,17,rerank_only,2
+q003,image_10140.png,image_5331.png,blouse,blue,,19,rerank_only,2
+q003,image_10140.png,image_3999.png,blouse,green,,20,rerank_only,1
+q004,image_10095.png,image_9349.png,blouse,orange,1,3,both,3
+q004,image_10095.png,image_4788.png,blouse,orange,2,2,both,2
+q004,image_10095.png,image_1427.png,blouse,red,3,9,both,1
+q004,image_10095.png,image_9661.png,blouse,red,4,8,both,3
+q004,image_10095.png,image_778.png,blouse,blue,5,,faiss_only,2
+q004,image_10095.png,image_7808.png,blouse,black,6,4,both,2
+q004,image_10095.png,image_4521.png,blouse,white,7,,faiss_only,2
+q004,image_10095.png,image_8649.png,blouse,grey,8,,faiss_only,2
+q004,image_10095.png,image_4026.png,blouse,red,9,15,both,2
+q004,image_10095.png,image_5362.png,blouse,brown,10,1,both,3
+q004,image_10095.png,image_6633.png,blouse,red,11,17,both,2
+q004,image_10095.png,image_2699.png,blouse,grey,12,,faiss_only,2
+q004,image_10095.png,image_6568.png,tank top,black,13,,faiss_only,2
+q004,image_10095.png,image_7972.png,blouse,beige,14,10,both,2
+q004,image_10095.png,image_8594.png,blouse,red,15,11,both,2
+q004,image_10095.png,image_5713.png,blouse,beige,16,19,both,2
+q004,image_10095.png,image_1556.png,blouse,orange,17,,faiss_only,2
+q004,image_10095.png,image_5398.png,blouse,red,18,16,both,2
+q004,image_10095.png,image_2507.png,blouse,red,19,,faiss_only,2
+q004,image_10095.png,image_9629.png,dress,brown,20,,faiss_only,2
+q004,image_10095.png,image_9032.png,blouse,orange,,5,rerank_only,3
+q004,image_10095.png,image_2783.png,blouse,beige,,6,rerank_only,3
+q004,image_10095.png,image_6880.png,blouse,orange,,7,rerank_only,3
+q004,image_10095.png,image_5356.png,blouse,black,,12,rerank_only,2
+q004,image_10095.png,image_6000.png,blouse,orange,,13,rerank_only,2
+q004,image_10095.png,image_3850.png,blouse,red,,14,rerank_only,3
+q004,image_10095.png,image_4262.png,blouse,brown,,18,rerank_only,2
+q004,image_10095.png,image_9977.png,blouse,beige,,20,rerank_only,2
+q005,image_10547.png,image_5126.png,blouse,black,1,,faiss_only,1
+q005,image_10547.png,image_8084.png,blouse,black,2,,faiss_only,2
+q005,image_10547.png,image_8616.png,blouse,white,3,13,both,2
+q005,image_10547.png,image_3398.png,blouse,black,4,19,both,3
+q005,image_10547.png,image_9260.png,blouse,white,5,11,both,1
+q005,image_10547.png,image_811.png,blouse,grey,6,4,both,2
+q005,image_10547.png,image_9770.png,blouse,white,7,12,both,3
+q005,image_10547.png,image_7071.png,t-shirt,grey,8,,faiss_only,1
+q005,image_10547.png,image_1861.png,blouse,blue,9,,faiss_only,2
+q005,image_10547.png,image_4709.png,blouse,orange,10,,faiss_only,1
+q005,image_10547.png,image_6581.png,blouse,black,11,,faiss_only,2
+q005,image_10547.png,image_8969.png,t-shirt,yellow,12,,faiss_only,1
+q005,image_10547.png,image_2602.png,t-shirt,grey,13,,faiss_only,1
+q005,image_10547.png,image_6007.png,blouse,blue,14,,faiss_only,2
+q005,image_10547.png,image_4050.png,crop top,orange,15,,faiss_only,3
+q005,image_10547.png,image_7487.png,t-shirt,blue,16,,faiss_only,1
+q005,image_10547.png,image_8753.png,t-shirt,grey,17,,faiss_only,1
+q005,image_10547.png,image_2203.png,blouse,blue,18,20,both,2
+q005,image_10547.png,image_7884.png,blouse,black,19,,faiss_only,2
+q005,image_10547.png,image_9356.png,blouse,red,20,,faiss_only,2
+q005,image_10547.png,image_9493.png,blouse,grey,,1,rerank_only,3
+q005,image_10547.png,image_2939.png,blouse,grey,,2,rerank_only,2
+q005,image_10547.png,image_1612.png,blouse,grey,,3,rerank_only,3
+q005,image_10547.png,image_7842.png,blouse,grey,,5,rerank_only,2
+q005,image_10547.png,image_7556.png,blouse,white,,6,rerank_only,1
+q005,image_10547.png,image_7291.png,blouse,grey,,7,rerank_only,2
+q005,image_10547.png,image_1921.png,blouse,white,,8,rerank_only,2
+q005,image_10547.png,image_5724.png,blouse,white,,9,rerank_only,1
+q005,image_10547.png,image_7890.png,blouse,white,,10,rerank_only,2
+q005,image_10547.png,image_835.png,blouse,blue,,14,rerank_only,2
+q005,image_10547.png,image_1728.png,blouse,grey,,15,rerank_only,3
+q005,image_10547.png,image_2498.png,blouse,white,,16,rerank_only,1
+q005,image_10547.png,image_7615.png,blouse,white,,17,rerank_only,2
+q005,image_10547.png,image_4637.png,blouse,white,,18,rerank_only,2
+q006,image_10568.png,image_5796.png,blouse,orange,1,17,both,3
+q006,image_10568.png,image_7791.png,blouse,blue,2,,faiss_only,2
+q006,image_10568.png,image_9970.png,blouse,grey,3,,faiss_only,2
+q006,image_10568.png,image_3083.png,blouse,blue,4,,faiss_only,2
+q006,image_10568.png,image_2434.png,t-shirt,yellow,5,,faiss_only,2
+q006,image_10568.png,image_8617.png,blouse,orange,6,20,both,1
+q006,image_10568.png,image_5266.png,blouse,black,7,5,both,1
+q006,image_10568.png,image_2862.png,blouse,orange,8,,faiss_only,2
+q006,image_10568.png,image_976.png,blouse,green,9,,faiss_only,3
+q006,image_10568.png,image_4333.png,blouse,orange,10,14,both,2
+q006,image_10568.png,image_739.png,blouse,yellow,11,1,both,2
+q006,image_10568.png,image_5135.png,blouse,green,12,8,both,1
+q006,image_10568.png,image_88.png,blouse,orange,13,16,both,2
+q006,image_10568.png,image_9076.png,blouse,white,14,7,both,1
+q006,image_10568.png,image_3502.png,sweater,brown,15,,faiss_only,0
+q006,image_10568.png,image_3718.png,blouse,brown,16,6,both,2
+q006,image_10568.png,image_746.png,blouse,orange,17,19,both,2
+q006,image_10568.png,image_5328.png,blouse,white,18,10,both,2
+q006,image_10568.png,image_2222.png,blouse,brown,19,4,both,2
+q006,image_10568.png,image_2525.png,blouse,blue,20,,faiss_only,1
+q006,image_10568.png,image_943.png,blouse,yellow,,2,rerank_only,2
+q006,image_10568.png,image_3868.png,blouse,yellow,,3,rerank_only,2
+q006,image_10568.png,image_20.png,blouse,grey,,9,rerank_only,1
+q006,image_10568.png,image_7807.png,blouse,beige,,11,rerank_only,2
+q006,image_10568.png,image_7796.png,blouse,beige,,12,rerank_only,2
+q006,image_10568.png,image_2764.png,blouse,red,,13,rerank_only,1
+q006,image_10568.png,image_4624.png,blouse,beige,,15,rerank_only,0
+q006,image_10568.png,image_864.png,blouse,blue,,18,rerank_only,0
+q007,image_10002.png,image_8613.png,t-shirt,blue,1,1,both,3
+q007,image_10002.png,image_8905.png,t-shirt,blue,2,2,both,3
+q007,image_10002.png,image_7090.png,t-shirt,blue,3,4,both,3
+q007,image_10002.png,image_8206.png,t-shirt,blue,4,5,both,2
+q007,image_10002.png,image_3093.png,t-shirt,blue,5,9,both,3
+q007,image_10002.png,image_9230.png,t-shirt,grey,6,,faiss_only,2
+q007,image_10002.png,image_351.png,t-shirt,black,7,,faiss_only,2
+q007,image_10002.png,image_2883.png,t-shirt,grey,8,,faiss_only,2
+q007,image_10002.png,image_6322.png,t-shirt,orange,9,,faiss_only,2
+q007,image_10002.png,image_5924.png,t-shirt,white,10,,faiss_only,2
+q007,image_10002.png,image_5209.png,blouse,blue,11,,faiss_only,3
+q007,image_10002.png,image_301.png,t-shirt,red,12,,faiss_only,2
+q007,image_10002.png,image_3710.png,t-shirt,black,13,,faiss_only,2
+q007,image_10002.png,image_9563.png,t-shirt,yellow,14,,faiss_only,2
+q007,image_10002.png,image_4744.png,t-shirt,white,15,,faiss_only,1
+q007,image_10002.png,image_6104.png,t-shirt,red,16,,faiss_only,2
+q007,image_10002.png,image_5465.png,t-shirt,blue,17,11,both,3
+q007,image_10002.png,image_1476.png,t-shirt,red,18,,faiss_only,2
+q007,image_10002.png,image_6024.png,t-shirt,white,19,20,both,3
+q007,image_10002.png,image_444.png,t-shirt,black,20,,faiss_only,2
+q007,image_10002.png,image_7967.png,t-shirt,blue,,3,rerank_only,3
+q007,image_10002.png,image_1831.png,t-shirt,blue,,6,rerank_only,2
+q007,image_10002.png,image_2922.png,t-shirt,blue,,7,rerank_only,3
+q007,image_10002.png,image_1834.png,t-shirt,blue,,8,rerank_only,3
+q007,image_10002.png,image_6909.png,t-shirt,blue,,10,rerank_only,3
+q007,image_10002.png,image_5208.png,t-shirt,blue,,12,rerank_only,2
+q007,image_10002.png,image_9181.png,t-shirt,blue,,13,rerank_only,2
+q007,image_10002.png,image_2419.png,t-shirt,blue,,14,rerank_only,3
+q007,image_10002.png,image_1386.png,t-shirt,blue,,15,rerank_only,2
+q007,image_10002.png,image_7601.png,t-shirt,blue,,16,rerank_only,3
+q007,image_10002.png,image_8226.png,t-shirt,blue,,17,rerank_only,1
+q007,image_10002.png,image_7330.png,t-shirt,blue,,18,rerank_only,1
+q007,image_10002.png,image_2440.png,t-shirt,red,,19,rerank_only,2
+q010,image_10176.png,image_549.png,t-shirt,black,1,2,both,3
+q010,image_10176.png,image_6194.png,t-shirt,red,2,1,both,3
+q010,image_10176.png,image_6730.png,t-shirt,black,3,4,both,3
+q010,image_10176.png,image_2044.png,t-shirt,black,4,5,both,1
+q010,image_10176.png,image_5444.png,t-shirt,blue,5,8,both,2
+q010,image_10176.png,image_8597.png,t-shirt,red,6,3,both,2
+q010,image_10176.png,image_6209.png,t-shirt,purple,7,16,both,0
+q010,image_10176.png,image_6183.png,t-shirt,yellow,8,,faiss_only,0
+q010,image_10176.png,image_9747.png,t-shirt,white,9,,faiss_only,1
+q010,image_10176.png,image_8353.png,t-shirt,black,10,20,both,1
+q010,image_10176.png,image_9075.png,t-shirt,beige,11,15,both,1
+q010,image_10176.png,image_7036.png,t-shirt,red,12,7,both,2
+q010,image_10176.png,image_5629.png,t-shirt,black,13,19,both,2
+q010,image_10176.png,image_364.png,t-shirt,blue,14,,faiss_only,2
+q010,image_10176.png,image_6370.png,t-shirt,red,15,6,both,3
+q010,image_10176.png,image_6423.png,t-shirt,black,16,17,both,2
+q010,image_10176.png,image_7686.png,t-shirt,black,17,,faiss_only,1
+q010,image_10176.png,image_5301.png,t-shirt,black,18,,faiss_only,2
+q010,image_10176.png,image_7358.png,t-shirt,white,19,,faiss_only,2
+q010,image_10176.png,image_230.png,t-shirt,white,20,,faiss_only,1
+q010,image_10176.png,image_63.png,t-shirt,red,,9,rerank_only,3
+q010,image_10176.png,image_1554.png,t-shirt,red,,10,rerank_only,1
+q010,image_10176.png,image_9586.png,t-shirt,red,,11,rerank_only,3
+q010,image_10176.png,image_5036.png,t-shirt,red,,12,rerank_only,1
+q010,image_10176.png,image_2738.png,t-shirt,red,,13,rerank_only,1
+q010,image_10176.png,image_1006.png,t-shirt,red,,14,rerank_only,2
+q010,image_10176.png,image_9662.png,t-shirt,black,,18,rerank_only,2
+q011,image_10928.png,image_5511.png,crop top,orange,1,5,both,2
+q011,image_10928.png,image_7516.png,blouse,orange,2,9,both,2
+q011,image_10928.png,image_2043.png,crop top,orange,3,1,both,3
+q011,image_10928.png,image_7576.png,crop top,orange,4,3,both,2
+q011,image_10928.png,image_3900.png,blouse,red,5,,faiss_only,1
+q011,image_10928.png,image_2368.png,crop top,orange,6,2,both,3
+q011,image_10928.png,image_205.png,crop top,orange,7,4,both,2
+q011,image_10928.png,image_392.png,blouse,orange,8,15,both,2
+q011,image_10928.png,image_9344.png,crop top,beige,9,8,both,2
+q011,image_10928.png,image_7726.png,crop top,red,10,12,both,2
+q011,image_10928.png,image_8362.png,blouse,black,11,,faiss_only,1
+q011,image_10928.png,image_5759.png,crop top,red,12,14,both,2
+q011,image_10928.png,image_7031.png,crop top,beige,13,11,both,2
+q011,image_10928.png,image_4280.png,crop top,red,14,10,both,2
+q011,image_10928.png,image_8342.png,blouse,red,15,,faiss_only,2
+q011,image_10928.png,image_2388.png,blouse,orange,16,16,both,2
+q011,image_10928.png,image_3384.png,blouse,orange,17,20,both,2
+q011,image_10928.png,image_1283.png,blouse,brown,18,,faiss_only,1
+q011,image_10928.png,image_1120.png,crop top,orange,19,6,both,2
+q011,image_10928.png,image_3733.png,blouse,brown,20,,faiss_only,1
+q011,image_10928.png,image_5166.png,crop top,orange,,7,rerank_only,2
+q011,image_10928.png,image_9329.png,crop top,beige,,13,rerank_only,2
+q011,image_10928.png,image_7046.png,crop top,red,,17,rerank_only,2
+q011,image_10928.png,image_8228.png,crop top,red,,18,rerank_only,2
+q011,image_10928.png,image_7062.png,crop top,white,,19,rerank_only,2
+q012,image_10907.png,image_1318.png,crop top,yellow,1,3,both,3
+q012,image_10907.png,image_231.png,crop top,red,2,6,both,2
+q012,image_10907.png,image_6632.png,crop top,beige,3,2,both,2
+q012,image_10907.png,image_6307.png,crop top,black,4,9,both,2
+q012,image_10907.png,image_1996.png,t-shirt,yellow,5,,faiss_only,2
+q012,image_10907.png,image_986.png,crop top,green,6,1,both,3
+q012,image_10907.png,image_2544.png,crop top,yellow,7,13,both,2
+q012,image_10907.png,image_226.png,crop top,brown,8,14,both,2
+q012,image_10907.png,image_7950.png,crop top,blue,9,15,both,1
+q012,image_10907.png,image_9.png,crop top,black,10,17,both,1
+q012,image_10907.png,image_8172.png,bodysuit,grey,11,,faiss_only,2
+q012,image_10907.png,image_8250.png,crop top,beige,12,4,both,2
+q012,image_10907.png,image_2497.png,crop top,black,13,16,both,1
+q012,image_10907.png,image_332.png,crop top,blue,14,18,both,1
+q012,image_10907.png,image_8515.png,crop top,white,15,12,both,2
+q012,image_10907.png,image_2427.png,crop top,black,16,19,both,0
+q012,image_10907.png,image_9311.png,blouse,beige,17,,faiss_only,2
+q012,image_10907.png,image_1821.png,blouse,green,18,,faiss_only,3
+q012,image_10907.png,image_9251.png,crop top,green,19,5,both,3
+q012,image_10907.png,image_6159.png,sweater,green,20,,faiss_only,2
+q012,image_10907.png,image_5945.png,crop top,green,,7,rerank_only,2
+q012,image_10907.png,image_522.png,crop top,beige,,8,rerank_only,2
+q012,image_10907.png,image_1371.png,crop top,yellow,,10,rerank_only,2
+q012,image_10907.png,image_1452.png,crop top,green,,11,rerank_only,2
+q012,image_10907.png,image_5348.png,crop top,yellow,,20,rerank_only,2
+q013,image_10306.png,image_3681.png,bodysuit,red,1,5,both,3
+q013,image_10306.png,image_7025.png,bodysuit,orange,2,6,both,3
+q013,image_10306.png,image_8219.png,bodysuit,brown,3,11,both,2
+q013,image_10306.png,image_5162.png,bodysuit,red,4,12,both,1
+q013,image_10306.png,image_1791.png,bodysuit,grey,5,14,both,2
+q013,image_10306.png,image_8103.png,bodysuit,grey,6,15,both,2
+q013,image_10306.png,image_3876.png,bodysuit,orange,7,9,both,2
+q013,image_10306.png,image_1481.png,blouse,brown,8,,faiss_only,2
+q013,image_10306.png,image_6979.png,bodysuit,white,9,17,both,2
+q013,image_10306.png,image_2226.png,bodysuit,orange,10,10,both,2
+q013,image_10306.png,image_557.png,blouse,beige,11,,faiss_only,2
+q013,image_10306.png,image_958.png,bodysuit,beige,12,1,both,2
+q013,image_10306.png,image_898.png,bodysuit,black,13,,faiss_only,2
+q013,image_10306.png,image_3159.png,bodysuit,white,14,,faiss_only,2
+q013,image_10306.png,image_597.png,bodysuit,orange,15,7,both,2
+q013,image_10306.png,image_7736.png,bodysuit,black,16,,faiss_only,2
+q013,image_10306.png,image_2730.png,bodysuit,green,17,,faiss_only,2
+q013,image_10306.png,image_6644.png,bodysuit,beige,18,2,both,2
+q013,image_10306.png,image_3780.png,bodysuit,blue,19,,faiss_only,1
+q013,image_10306.png,image_6810.png,bodysuit,black,20,,faiss_only,2
+q013,image_10306.png,image_3191.png,bodysuit,beige,,3,rerank_only,2
+q013,image_10306.png,image_7582.png,bodysuit,beige,,4,rerank_only,2
+q013,image_10306.png,image_4266.png,bodysuit,brown,,8,rerank_only,2
+q013,image_10306.png,image_2676.png,bodysuit,red,,13,rerank_only,2
+q013,image_10306.png,image_7192.png,bodysuit,grey,,16,rerank_only,2
+q013,image_10306.png,image_8457.png,bodysuit,brown,,18,rerank_only,1
+q013,image_10306.png,image_8723.png,bodysuit,orange,,19,rerank_only,2
+q013,image_10306.png,image_5387.png,bodysuit,white,,20,rerank_only,2
+q015,image_10796.png,image_3843.png,tank top,purple,1,1,both,3
+q015,image_10796.png,image_5107.png,tank top,grey,2,2,both,2
+q015,image_10796.png,image_218.png,tank top,grey,3,3,both,3
+q015,image_10796.png,image_4790.png,tank top,red,4,4,both,2
+q015,image_10796.png,image_6907.png,tank top,blue,5,5,both,2
+q015,image_10796.png,image_6099.png,tank top,blue,6,6,both,2
+q015,image_10796.png,image_2911.png,crop top,white,7,,faiss_only,2
+q015,image_10796.png,image_758.png,tank top,beige,8,7,both,3
+q015,image_10796.png,image_6214.png,tank top,black,9,8,both,2
+q015,image_10796.png,image_563.png,tank top,black,10,9,both,2
+q015,image_10796.png,image_1076.png,crop top,white,11,,faiss_only,0
+q015,image_10796.png,image_9714.png,t-shirt,red,12,,faiss_only,2
+q015,image_10796.png,image_6905.png,crop top,blue,13,,faiss_only,1
+q015,image_10796.png,image_1576.png,crop top,red,14,,faiss_only,3
+q015,image_10796.png,image_1335.png,crop top,beige,15,,faiss_only,1
+q015,image_10796.png,image_4653.png,tank top,blue,16,13,both,2
+q015,image_10796.png,image_2135.png,tank top,white,17,10,both,1
+q015,image_10796.png,image_164.png,tank top,blue,18,11,both,2
+q015,image_10796.png,image_6135.png,tank top,blue,19,12,both,2
+q015,image_10796.png,image_6200.png,tank top,yellow,20,14,both,2
+q015,image_10796.png,image_213.png,tank top,black,,15,rerank_only,1
+q015,image_10796.png,image_2025.png,tank top,grey,,16,rerank_only,2
+q015,image_10796.png,image_282.png,tank top,blue,,17,rerank_only,1
+q015,image_10796.png,image_9863.png,tank top,red,,18,rerank_only,3
+q015,image_10796.png,image_5184.png,tank top,blue,,19,rerank_only,1
+q015,image_10796.png,image_4435.png,tank top,black,,20,rerank_only,2
+q017,image_10886.png,image_6103.png,sweatshirt,grey,1,9,both,2
+q017,image_10886.png,image_4045.png,sweater,grey,2,1,both,3
+q017,image_10886.png,image_5388.png,t-shirt,white,3,,faiss_only,1
+q017,image_10886.png,image_6376.png,t-shirt,white,4,,faiss_only,1
+q017,image_10886.png,image_5936.png,sweater,black,5,8,both,2
+q017,image_10886.png,image_2602.png,t-shirt,grey,6,20,both,2
+q017,image_10886.png,image_7692.png,t-shirt,grey,7,10,both,2
+q017,image_10886.png,image_3194.png,sweater,grey,8,2,both,2
+q017,image_10886.png,image_6472.png,blouse,white,9,,faiss_only,1
+q017,image_10886.png,image_2935.png,blouse,grey,10,11,both,3
+q017,image_10886.png,image_7566.png,t-shirt,grey,11,12,both,1
+q017,image_10886.png,image_6554.png,t-shirt,white,12,,faiss_only,1
+q017,image_10886.png,image_9322.png,sweater,grey,13,3,both,2
+q017,image_10886.png,image_2087.png,blouse,white,14,,faiss_only,1
+q017,image_10886.png,image_7602.png,blouse,beige,15,,faiss_only,1
+q017,image_10886.png,image_8254.png,blouse,grey,16,,faiss_only,2
+q017,image_10886.png,image_7021.png,blouse,black,17,,faiss_only,2
+q017,image_10886.png,image_7831.png,t-shirt,grey,18,13,both,2
+q017,image_10886.png,image_4205.png,blouse,white,19,,faiss_only,1
+q017,image_10886.png,image_501.png,blouse,white,20,,faiss_only,1
+q017,image_10886.png,image_1984.png,sweater,grey,,4,rerank_only,2
+q017,image_10886.png,image_281.png,sweater,grey,,5,rerank_only,2
+q017,image_10886.png,image_8568.png,sweater,grey,,6,rerank_only,2
+q017,image_10886.png,image_1545.png,sweater,grey,,7,rerank_only,2
+q017,image_10886.png,image_866.png,t-shirt,grey,,14,rerank_only,1
+q017,image_10886.png,image_2454.png,t-shirt,grey,,15,rerank_only,1
+q017,image_10886.png,image_8188.png,t-shirt,grey,,16,rerank_only,1
+q017,image_10886.png,image_6595.png,t-shirt,grey,,17,rerank_only,2
+q017,image_10886.png,image_1561.png,t-shirt,grey,,18,rerank_only,2
+q017,image_10886.png,image_3066.png,t-shirt,grey,,19,rerank_only,1
+q018,image_10667.png,image_7432.png,sweater,blue,1,12,both,2
+q018,image_10667.png,image_690.png,t-shirt,grey,2,15,both,2
+q018,image_10667.png,image_9695.png,t-shirt,black,3,13,both,2
+q018,image_10667.png,image_9729.png,t-shirt,grey,4,,faiss_only,1
+q018,image_10667.png,image_8747.png,t-shirt,black,5,,faiss_only,3
+q018,image_10667.png,image_9575.png,t-shirt,blue,6,14,both,1
+q018,image_10667.png,image_9004.png,t-shirt,black,7,,faiss_only,1
+q018,image_10667.png,image_9780.png,t-shirt,white,8,,faiss_only,1
+q018,image_10667.png,image_3696.png,t-shirt,white,9,,faiss_only,2
+q018,image_10667.png,image_1517.png,blouse,white,10,,faiss_only,1
+q018,image_10667.png,image_8024.png,t-shirt,white,11,,faiss_only,1
+q018,image_10667.png,image_1027.png,t-shirt,red,12,,faiss_only,0
+q018,image_10667.png,image_7522.png,t-shirt,black,13,19,both,2
+q018,image_10667.png,image_5736.png,t-shirt,grey,14,,faiss_only,1
+q018,image_10667.png,image_1315.png,crop top,grey,15,,faiss_only,0
+q018,image_10667.png,image_6301.png,sweatshirt,black,16,8,both,2
+q018,image_10667.png,image_6267.png,sweatshirt,black,17,1,both,2
+q018,image_10667.png,image_7345.png,t-shirt,orange,18,,faiss_only,2
+q018,image_10667.png,image_6870.png,t-shirt,white,19,,faiss_only,1
+q018,image_10667.png,image_3303.png,blouse,brown,20,,faiss_only,1
+q018,image_10667.png,image_7194.png,sweatshirt,blue,,2,rerank_only,3
+q018,image_10667.png,image_6888.png,sweatshirt,blue,,3,rerank_only,2
+q018,image_10667.png,image_6691.png,sweatshirt,blue,,4,rerank_only,2
+q018,image_10667.png,image_6350.png,sweatshirt,black,,5,rerank_only,2
+q018,image_10667.png,image_7008.png,sweatshirt,black,,6,rerank_only,1
+q018,image_10667.png,image_8243.png,sweatshirt,grey,,7,rerank_only,1
+q018,image_10667.png,image_963.png,sweatshirt,black,,9,rerank_only,2
+q018,image_10667.png,image_6666.png,sweatshirt,black,,10,rerank_only,2
+q018,image_10667.png,image_1773.png,sweatshirt,beige,,11,rerank_only,1
+q018,image_10667.png,image_9618.png,t-shirt,blue,,16,rerank_only,2
+q018,image_10667.png,image_3317.png,t-shirt,blue,,17,rerank_only,2
+q018,image_10667.png,image_2128.png,t-shirt,blue,,18,rerank_only,2
+q018,image_10667.png,image_4816.png,blouse,blue,,20,rerank_only,1
+q019,image_10774.png,image_5945.png,crop top,green,1,3,both,2
+q019,image_10774.png,image_2544.png,crop top,yellow,2,16,both,2
+q019,image_10774.png,image_3382.png,crop top,white,3,17,both,2
+q019,image_10774.png,image_5701.png,polo,green,4,1,both,2
+q019,image_10774.png,image_4075.png,bodysuit,beige,5,,faiss_only,2
+q019,image_10774.png,image_4151.png,t-shirt,green,6,4,both,2
+q019,image_10774.png,image_1338.png,bodysuit,orange,7,,faiss_only,2
+q019,image_10774.png,image_6208.png,polo,white,8,5,both,2
+q019,image_10774.png,image_577.png,crop top,black,9,19,both,2
+q019,image_10774.png,image_1741.png,blouse,white,10,20,both,2
+q019,image_10774.png,image_5749.png,blouse,beige,11,,faiss_only,2
+q019,image_10774.png,image_5691.png,blouse,white,12,,faiss_only,2
+q019,image_10774.png,image_9935.png,polo,blue,13,6,both,1
+q019,image_10774.png,image_402.png,blouse,yellow,14,,faiss_only,2
+q019,image_10774.png,image_6186.png,crop top,beige,15,,faiss_only,2
+q019,image_10774.png,image_2141.png,blouse,orange,16,,faiss_only,2
+q019,image_10774.png,image_4859.png,crop top,orange,17,,faiss_only,1
+q019,image_10774.png,image_522.png,crop top,beige,18,,faiss_only,2
+q019,image_10774.png,image_1821.png,blouse,green,19,7,both,2
+q019,image_10774.png,image_5658.png,tank top,green,20,13,both,1
+q019,image_10774.png,image_3723.png,polo,green,,2,rerank_only,3
+q019,image_10774.png,image_9799.png,polo,orange,,8,rerank_only,2
+q019,image_10774.png,image_4426.png,polo,black,,9,rerank_only,2
+q019,image_10774.png,image_6919.png,polo,blue,,10,rerank_only,2
+q019,image_10774.png,image_6159.png,sweater,green,,11,rerank_only,1
+q019,image_10774.png,image_9251.png,crop top,green,,12,rerank_only,2
+q019,image_10774.png,image_986.png,crop top,green,,14,rerank_only,2
+q019,image_10774.png,image_9311.png,blouse,beige,,15,rerank_only,1
+q019,image_10774.png,image_8090.png,blouse,beige,,18,rerank_only,2
+q020,image_10849.png,image_7771.png,hoodie,grey,1,1,both,3
+q020,image_10849.png,image_5614.png,t-shirt,white,2,18,both,1
+q020,image_10849.png,image_794.png,hoodie,blue,3,3,both,2
+q020,image_10849.png,image_5473.png,crop top,grey,4,4,both,2
+q020,image_10849.png,image_5419.png,t-shirt,red,5,,faiss_only,1
+q020,image_10849.png,image_3020.png,sweater,grey,6,5,both,2
+q020,image_10849.png,image_4858.png,t-shirt,grey,7,11,both,1
+q020,image_10849.png,image_456.png,crop top,white,8,,faiss_only,2
+q020,image_10849.png,image_5414.png,crop top,red,9,,faiss_only,2
+q020,image_10849.png,image_5777.png,blouse,grey,10,6,both,2
+q020,image_10849.png,image_1329.png,t-shirt,blue,11,,faiss_only,1
+q020,image_10849.png,image_196.png,t-shirt,blue,12,,faiss_only,1
+q020,image_10849.png,image_3869.png,sweater,black,13,,faiss_only,1
+q020,image_10849.png,image_5154.png,crop top,grey,14,12,both,2
+q020,image_10849.png,image_5725.png,t-shirt,white,15,13,both,1
+q020,image_10849.png,image_5613.png,crop top,white,16,,faiss_only,1
+q020,image_10849.png,image_5517.png,t-shirt,grey,17,7,both,1
+q020,image_10849.png,image_1867.png,blouse,black,18,,faiss_only,1
+q020,image_10849.png,image_5234.png,crop top,black,19,,faiss_only,1
+q020,image_10849.png,image_1361.png,t-shirt,blue,20,,faiss_only,1
+q020,image_10849.png,image_2196.png,hoodie,grey,,2,rerank_only,3
+q020,image_10849.png,image_6466.png,hoodie,black,,8,rerank_only,2
+q020,image_10849.png,image_9505.png,crop top,grey,,9,rerank_only,2
+q020,image_10849.png,image_1257.png,t-shirt,grey,,10,rerank_only,1
+q020,image_10849.png,image_6265.png,crop top,grey,,14,rerank_only,2
+q020,image_10849.png,image_1494.png,polo,white,,15,rerank_only,0
+q020,image_10849.png,image_5929.png,crop top,grey,,16,rerank_only,2
+q020,image_10849.png,image_7777.png,blouse,grey,,17,rerank_only,1
+q020,image_10849.png,image_463.png,t-shirt,grey,,19,rerank_only,1
+q020,image_10849.png,image_4495.png,blouse,blue,,20,rerank_only,1
+q021,image_10044.png,image_5633.png,blouse,brown,1,1,both,3
+q021,image_10044.png,image_4599.png,blouse,red,2,3,both,3
+q021,image_10044.png,image_7847.png,blouse,black,3,4,both,2
+q021,image_10044.png,image_7388.png,blouse,grey,4,6,both,3
+q021,image_10044.png,image_7243.png,blouse,red,5,7,both,3
+q021,image_10044.png,image_9789.png,blouse,brown,6,5,both,1
+q021,image_10044.png,image_646.png,blouse,black,7,,faiss_only,1
+q021,image_10044.png,image_1535.png,blouse,beige,8,10,both,2
+q021,image_10044.png,image_3333.png,blouse,grey,9,13,both,1
+q021,image_10044.png,image_7125.png,blouse,black,10,,faiss_only,3
+q021,image_10044.png,image_6718.png,blouse,black,11,,faiss_only,1
+q021,image_10044.png,image_9189.png,blouse,black,12,15,both,1
+q021,image_10044.png,image_7810.png,blouse,red,13,,faiss_only,1
+q021,image_10044.png,image_9875.png,blouse,grey,14,11,both,1
+q021,image_10044.png,image_5424.png,blouse,blue,15,,faiss_only,1
+q021,image_10044.png,image_9638.png,blouse,brown,16,9,both,2
+q021,image_10044.png,image_1051.png,blouse,black,17,2,both,1
+q021,image_10044.png,image_997.png,blouse,black,18,,faiss_only,1
+q021,image_10044.png,image_7377.png,blouse,red,19,,faiss_only,1
+q021,image_10044.png,image_8137.png,blouse,black,20,,faiss_only,1
+q021,image_10044.png,image_2861.png,blouse,orange,,8,rerank_only,1
+q021,image_10044.png,image_7471.png,blouse,grey,,12,rerank_only,1
+q021,image_10044.png,image_6880.png,blouse,orange,,14,rerank_only,2
+q021,image_10044.png,image_1248.png,blouse,black,,16,rerank_only,1
+q021,image_10044.png,image_838.png,blouse,grey,,17,rerank_only,2
+q021,image_10044.png,image_6431.png,blouse,black,,18,rerank_only,3
+q021,image_10044.png,image_244.png,blouse,black,,19,rerank_only,2
+q021,image_10044.png,image_8348.png,blouse,brown,,20,rerank_only,1
+q001,image_10003.png,image_3740.png,blouse,black,1,1,both,3
+q001,image_10003.png,image_464.png,blouse,black,2,2,both,1
+q001,image_10003.png,image_7495.png,crop top,black,3,,faiss_only,3
+q001,image_10003.png,image_1288.png,blouse,black,4,3,both,1
+q001,image_10003.png,image_3164.png,blouse,black,5,4,both,2
+q001,image_10003.png,image_7376.png,blouse,black,6,6,both,3
+q001,image_10003.png,image_5309.png,crop top,black,7,,faiss_only,3
+q001,image_10003.png,image_452.png,blouse,black,8,5,both,1
+q001,image_10003.png,image_9350.png,blouse,black,9,8,both,3
+q001,image_10003.png,image_8251.png,blouse,black,10,9,both,3
+q001,image_10003.png,image_5303.png,blouse,black,11,7,both,3
+q001,image_10003.png,image_3680.png,blouse,black,12,10,both,1
+q001,image_10003.png,image_1189.png,blouse,black,13,,faiss_only,2
+q001,image_10003.png,image_4359.png,blouse,black,14,,faiss_only,1
+q001,image_10003.png,image_6486.png,blouse,black,15,11,both,3
+q001,image_10003.png,image_9898.png,blouse,black,16,,faiss_only,3
+q001,image_10003.png,image_9295.png,blouse,blue,17,,faiss_only,1
+q001,image_10003.png,image_1486.png,blouse,blue,18,,faiss_only,3
+q001,image_10003.png,image_4274.png,blouse,black,19,13,both,3
+q001,image_10003.png,image_8866.png,blouse,black,20,12,both,1
+q001,image_10003.png,image_7662.png,blouse,black,,14,rerank_only,1
+q001,image_10003.png,image_5778.png,blouse,black,,15,rerank_only,1
+q001,image_10003.png,image_8033.png,blouse,black,,16,rerank_only,2
+q001,image_10003.png,image_9226.png,blouse,black,,17,rerank_only,1
+q001,image_10003.png,image_9803.png,blouse,black,,18,rerank_only,1
+q001,image_10003.png,image_4989.png,blouse,black,,19,rerank_only,2
+q001,image_10003.png,image_5050.png,blouse,black,,20,rerank_only,1
+q008,image_10548.png,image_9183.png,t-shirt,blue,1,19,both,3
+q008,image_10548.png,image_6078.png,t-shirt,black,2,1,both,2
+q008,image_10548.png,image_6122.png,t-shirt,purple,3,,faiss_only,2
+q008,image_10548.png,image_6033.png,t-shirt,white,4,,faiss_only,2
+q008,image_10548.png,image_3741.png,t-shirt,black,5,2,both,2
+q008,image_10548.png,image_4335.png,t-shirt,grey,6,,faiss_only,1
+q008,image_10548.png,image_5441.png,t-shirt,white,7,,faiss_only,1
+q008,image_10548.png,image_7935.png,t-shirt,black,8,4,both,3
+q008,image_10548.png,image_722.png,t-shirt,blue,9,,faiss_only,3
+q008,image_10548.png,image_6032.png,t-shirt,white,10,,faiss_only,1
+q008,image_10548.png,image_6298.png,t-shirt,black,11,3,both,3
+q008,image_10548.png,image_5616.png,t-shirt,black,12,8,both,2
+q008,image_10548.png,image_5301.png,t-shirt,black,13,11,both,3
+q008,image_10548.png,image_364.png,t-shirt,blue,14,,faiss_only,3
+q008,image_10548.png,image_8366.png,t-shirt,black,15,14,both,1
+q008,image_10548.png,image_7333.png,t-shirt,black,16,6,both,2
+q008,image_10548.png,image_5434.png,t-shirt,black,17,15,both,1
+q008,image_10548.png,image_8805.png,t-shirt,black,18,18,both,2
+q008,image_10548.png,image_2681.png,t-shirt,white,19,,faiss_only,1
+q008,image_10548.png,image_6310.png,t-shirt,black,20,10,both,3
+q008,image_10548.png,image_3294.png,t-shirt,black,,5,rerank_only,3
+q008,image_10548.png,image_5353.png,t-shirt,black,,7,rerank_only,2
+q008,image_10548.png,image_6910.png,t-shirt,black,,9,rerank_only,3
+q008,image_10548.png,image_5629.png,t-shirt,black,,12,rerank_only,3
+q008,image_10548.png,image_6326.png,t-shirt,black,,13,rerank_only,3
+q008,image_10548.png,image_7238.png,t-shirt,black,,16,rerank_only,2
+q008,image_10548.png,image_6499.png,t-shirt,black,,17,rerank_only,3
+q008,image_10548.png,image_3038.png,t-shirt,black,,20,rerank_only,3
+q009,image_10034.png,image_2936.png,t-shirt,white,1,8,both,3
+q009,image_10034.png,image_1087.png,t-shirt,white,2,20,both,3
+q009,image_10034.png,image_1888.png,t-shirt,grey,3,,faiss_only,3
+q009,image_10034.png,image_1491.png,blouse,grey,4,,faiss_only,2
+q009,image_10034.png,image_1931.png,t-shirt,white,5,15,both,3
+q009,image_10034.png,image_7868.png,t-shirt,white,6,2,both,3
+q009,image_10034.png,image_2734.png,t-shirt,white,7,1,both,3
+q009,image_10034.png,image_2237.png,t-shirt,grey,8,,faiss_only,2
+q009,image_10034.png,image_5383.png,t-shirt,white,9,14,both,3
+q009,image_10034.png,image_5795.png,t-shirt,grey,10,,faiss_only,3
+q009,image_10034.png,image_2324.png,t-shirt,white,11,,faiss_only,2
+q009,image_10034.png,image_271.png,blouse,white,12,,faiss_only,2
+q009,image_10034.png,image_5260.png,t-shirt,white,13,10,both,2
+q009,image_10034.png,image_9020.png,t-shirt,grey,14,,faiss_only,3
+q009,image_10034.png,image_2653.png,t-shirt,grey,15,,faiss_only,3
+q009,image_10034.png,image_8687.png,blouse,white,16,,faiss_only,2
+q009,image_10034.png,image_167.png,t-shirt,white,17,,faiss_only,3
+q009,image_10034.png,image_3023.png,t-shirt,white,18,16,both,3
+q009,image_10034.png,image_2638.png,t-shirt,white,19,6,both,3
+q009,image_10034.png,image_2276.png,t-shirt,white,20,3,both,3
+q009,image_10034.png,image_673.png,t-shirt,white,,4,rerank_only,2
+q009,image_10034.png,image_4223.png,t-shirt,white,,5,rerank_only,2
+q009,image_10034.png,image_1958.png,t-shirt,white,,7,rerank_only,3
+q009,image_10034.png,image_1028.png,t-shirt,white,,9,rerank_only,3
+q009,image_10034.png,image_3585.png,t-shirt,white,,11,rerank_only,2
+q009,image_10034.png,image_4394.png,t-shirt,white,,12,rerank_only,3
+q009,image_10034.png,image_4247.png,t-shirt,white,,13,rerank_only,2
+q009,image_10034.png,image_1090.png,t-shirt,white,,17,rerank_only,3
+q009,image_10034.png,image_8522.png,t-shirt,white,,18,rerank_only,2
+q009,image_10034.png,image_6836.png,t-shirt,white,,19,rerank_only,3
+q014,image_10278.png,image_7472.png,bodysuit,white,1,1,both,2
+q014,image_10278.png,image_3368.png,bodysuit,black,2,9,both,2
+q014,image_10278.png,image_8422.png,bodysuit,white,3,2,both,3
+q014,image_10278.png,image_9919.png,bodysuit,black,4,11,both,1
+q014,image_10278.png,image_1362.png,blouse,white,5,,faiss_only,2
+q014,image_10278.png,image_7611.png,bodysuit,black,6,12,both,1
+q014,image_10278.png,image_3455.png,bodysuit,beige,7,8,both,2
+q014,image_10278.png,image_9256.png,bodysuit,grey,8,7,both,2
+q014,image_10278.png,image_7421.png,blouse,white,9,,faiss_only,2
+q014,image_10278.png,image_7606.png,bodysuit,black,10,13,both,2
+q014,image_10278.png,image_7308.png,blouse,white,11,,faiss_only,2
+q014,image_10278.png,image_8704.png,bodysuit,black,12,10,both,2
+q014,image_10278.png,image_2251.png,blouse,white,13,,faiss_only,2
+q014,image_10278.png,image_8759.png,blouse,white,14,,faiss_only,2
+q014,image_10278.png,image_4757.png,tank top,blue,15,,faiss_only,1
+q014,image_10278.png,image_2045.png,bodysuit,white,16,5,both,3
+q014,image_10278.png,image_2461.png,tank top,red,17,,faiss_only,2
+q014,image_10278.png,image_4270.png,bodysuit,black,18,17,both,2
+q014,image_10278.png,image_6342.png,bodysuit,black,19,14,both,2
+q014,image_10278.png,image_6066.png,bodysuit,black,20,20,both,2
+q014,image_10278.png,image_7620.png,bodysuit,white,,3,rerank_only,3
+q014,image_10278.png,image_8478.png,bodysuit,white,,4,rerank_only,2
+q014,image_10278.png,image_6546.png,bodysuit,white,,6,rerank_only,2
+q014,image_10278.png,image_2287.png,bodysuit,grey,,15,rerank_only,2
+q014,image_10278.png,image_5248.png,bodysuit,black,,16,rerank_only,2
+q014,image_10278.png,image_7126.png,bodysuit,black,,18,rerank_only,2
+q014,image_10278.png,image_6671.png,bodysuit,black,,19,rerank_only,1
+q016,image_10894.png,image_8655.png,tank top,blue,1,1,both,2
+q016,image_10894.png,image_2732.png,tank top,white,2,2,both,2
+q016,image_10894.png,image_3667.png,tank top,white,3,3,both,2
+q016,image_10894.png,image_3124.png,blouse,blue,4,,faiss_only,1
+q016,image_10894.png,image_1793.png,tank top,blue,5,4,both,1
+q016,image_10894.png,image_3498.png,blouse,red,6,,faiss_only,1
+q016,image_10894.png,image_4309.png,tank top,white,7,5,both,2
+q016,image_10894.png,image_2290.png,blouse,red,8,,faiss_only,1
+q016,image_10894.png,image_2700.png,tank top,orange,9,6,both,2
+q016,image_10894.png,image_8032.png,tank top,white,10,7,both,2
+q016,image_10894.png,image_3248.png,tank top,black,11,8,both,2
+q016,image_10894.png,image_2834.png,tank top,white,12,10,both,2
+q016,image_10894.png,image_8101.png,tank top,grey,13,11,both,1
+q016,image_10894.png,image_3276.png,blouse,white,14,,faiss_only,1
+q016,image_10894.png,image_2925.png,tank top,white,15,12,both,2
+q016,image_10894.png,image_7213.png,t-shirt,white,16,,faiss_only,1
+q016,image_10894.png,image_6311.png,blouse,blue,17,,faiss_only,1
+q016,image_10894.png,image_2739.png,t-shirt,white,18,20,both,2
+q016,image_10894.png,image_8593.png,tank top,red,19,9,both,3
+q016,image_10894.png,image_2674.png,tank top,beige,20,13,both,1
+q016,image_10894.png,image_6583.png,tank top,white,,14,rerank_only,2
+q016,image_10894.png,image_7940.png,tank top,grey,,15,rerank_only,2
+q016,image_10894.png,image_8842.png,tank top,white,,16,rerank_only,1
+q016,image_10894.png,image_5543.png,tank top,blue,,17,rerank_only,2
+q016,image_10894.png,image_3197.png,tank top,beige,,18,rerank_only,1
+q016,image_10894.png,image_8375.png,t-shirt,purple,,19,rerank_only,1
