@@ -112,7 +112,7 @@ elif uploaded_file and not text_query:
     
     indices, _, image_scores, query_embedding = engine.search(tmp_path, k=50)
     query_metadata = builder.extract_all_metadata(query_embedding, tmp_path)
-    recommendations = recommender.recommend(query_metadata=query_metadata, k=8)
+    recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
     st.markdown(
         f"### {query_metadata['category'].title()} ({query_metadata['color']})"
     )
@@ -144,7 +144,7 @@ elif uploaded_file and text_query:
         engine.multimodal_search(tmp_path, text_query, k=50)
     )
     query_metadata = builder.extract_all_metadata(query_image_embedding, tmp_path)
-    recommendations = recommender.recommend(query_metadata=query_metadata, k=8)
+    recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
     st.markdown(
         f"### {query_metadata['category'].title()} ({query_metadata['color']})"
     )
@@ -192,7 +192,7 @@ st.subheader("Top Matches")
 if not final_results:
     st.warning("No results found matching the selected filters.")
 else:
-    display_results = final_results[:20]
+    display_results = final_results[:8]
     num_cols = 4
 
     for row_start in range(0, len(display_results), num_cols):

@@ -2,6 +2,17 @@
 
 Fashion Visual Search is a local multimodal retrieval application for finding visually or semantically similar garments in a catalog of 10,424 indexed images. It uses a SigLIP2 image/text encoder, exact FAISS search for image queries, direct embedding similarity for text queries, zero-shot metadata extraction, and optional metadata-aware reranking. A Streamlit interface exposes image, text, and combined image-plus-text search.
 
+## Demo
+
+The Streamlit application supports:
+- Image-to-image retrieval
+- Text-to-image retrieval
+- Combined image-text search
+- Metadata-aware reranking
+- Complementary item recommendations
+
+![Fashion Visual Search Demo](assets/demo_search.png)
+
 ## Key features
 
 - Image-to-image search over normalized 1,536-dimensional embeddings.
