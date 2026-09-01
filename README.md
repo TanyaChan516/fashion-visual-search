@@ -1,6 +1,6 @@
 # Fashion Visual Search
 
-Fashion Visual Search is a local multimodal retrieval application for finding visually or semantically similar garments in a catalog of 10,424 indexed images. It uses a SigLIP2 image/text encoder, exact FAISS search for image queries, direct embedding similarity for text queries, zero-shot metadata extraction, and optional metadata-aware reranking. A Streamlit interface exposes image, text, and combined image-plus-text search.
+Fashion Visual Search is a local multimodal retrieval application for finding visually or semantically similar garments in a catalog of 10,424 indexed images. It uses a SigLIP2 image/text encoder, exact FAISS search for image queries, direct embedding similarity for text queries, zero-shot metadata extraction, and optional metadata-aware reranking. The v2 Streamlit interface supports product-photo, text, combined image-plus-text, and human-reviewed outfit/model-photo search.
 
 ## Demo
 
@@ -8,16 +8,26 @@ The Streamlit application supports:
 - Image-to-image retrieval
 - Text-to-image retrieval
 - Combined image-text search
+- Outfit/model-photo garment detection and segmentation
+- Human-in-the-loop detection and bounding-box review
 - Metadata-aware reranking
 - Complementary item recommendations
 
 ![Fashion Visual Search Demo](assets/demo_search.png)
+
+![Grounding DINO detection review and SAM2 garment segmentation](assets/grounded_sam_detection.png)
+
+![Segmented garment search results and recommendations](assets/groundedsam_search.png)
 
 ## Key features
 
 - Image-to-image search over normalized 1,536-dimensional embeddings.
 - Text-to-image search in the same SigLIP2 embedding space.
 - Combined image-and-text search, with text similarity applied to image-retrieved candidates.
+- Grounding DINO candidate detection for garments and fashion accessories in outfit/model photos.
+- Interactive checkbox visibility, deletion/reset controls, and manual bounding-box editing or addition with stable detection IDs.
+- Category-aware non-maximum suppression and SAM2 box-prompted segmentation on user-approved detections.
+- Isolated-garment search on a light gray catalog-style background through the existing SigLIP2/FAISS pipeline.
 - Exact `IndexFlatIP` FAISS retrieval; normalized image vectors make inner product equivalent to cosine similarity.
 - Zero-shot category and attribute prediction for category, material, neckline, occasion, pattern, sleeve, structure, style, and garment details.
 - Foreground-aware primary/secondary color extraction and color-distribution comparison.
@@ -48,6 +58,28 @@ Optional metadata filters -> up to 20 displayed matches
 
 For a combined query, the image vector first retrieves 50 FAISS candidates. Text similarity is then calculated only for those candidates. The reranker combines image similarity, text similarity, category/group agreement, and foreground-color overlap.
 
+The v2 outfit/model-photo workflow adds a human-reviewed extraction stage before the existing retrieval pipeline:
+
+```text
+Outfit image
+    |
+Grounding DINO garment detection and coarse labels
+    |
+User review: hide/show, delete/reset, or correct/add bounding boxes
+    |
+SAM2 box-prompted segmentation
+    |
+Isolated garment on a light gray catalog-style background
+    |
+SigLIP2 embedding and zero-shot metadata generation
+    |
+FAISS retrieval
+    |
+Metadata-aware reranking and complementary recommendations
+```
+
+Grounding DINO locates candidate fashion items and supplies a coarse detection label. SAM2 isolates each approved garment from the outfit image. The Grounding DINO label is not treated as final retrieval metadata: the downstream SigLIP2 zero-shot metadata pipeline classifies the isolated garment and determines its retrieval category and attributes. The review step is intentional, allowing users to correct missed, imprecise, or unwanted detections before segmentation.
+
 The model configured in `config.py` is `hf-hub:timm/ViT-gopt-16-SigLIP2-384`, loaded through `open_clip`. The current local artifact bundle contains catalog vectors with shape `(10424, 1536)` and dtype `float32`; its FAISS artifact is an `IndexFlatIP` containing 10,424 vectors of dimension 1,536. These generated artifacts are intentionally excluded from normal Git tracking.
 
 ## Repository structure
@@ -56,6 +88,7 @@ The model configured in `config.py` is `hf-hub:timm/ViT-gopt-16-SigLIP2-384`, lo
 .
 ├── api/
 │   ├── retrievalEngine.py        # model loading and image/text retrieval
+│   ├── segment.py                # Grounding DINO detection and SAM2 segmentation
 │   ├── searchReranker.py         # metadata-aware scoring
 │   ├── zeroShotClassifier.py     # category and attribute prediction
 │   └── recommendationEngine.py   # complementary-item rules
@@ -80,6 +113,8 @@ The model configured in `config.py` is `hf-hub:timm/ViT-gopt-16-SigLIP2-384`, lo
 │   ├── latency_summary.csv       # aggregate latency statistics
 │   ├── evaluate_metrics.py
 │   └── evaluate_latency.py
+├── docs/evaluation/
+│   └── groundedsam_v2_summary.md # aggregate outfit-pipeline evaluation
 ├── index/
 │   ├── faiss.index               # generated locally; ignored by Git
 │   └── build_index.py
@@ -92,7 +127,7 @@ The model configured in `config.py` is `hf-hub:timm/ViT-gopt-16-SigLIP2-384`, lo
 
 Clone the source code using the repository's normal GitHub clone URL. The clone contains the source, documentation, and committed evaluation files, but it does not redistribute source datasets, catalog/evaluation images, captions, model weights, or the generated retrieval artifacts.
 
-No Python version is declared in the repository. In a compatible Python environment, install the declared dependency list:
+No Python version is declared in the repository. In a compatible Python environment, install the declared dependency list. The Streamlit, `streamlit-label-kit`, Transformers, PyTorch, OpenCV, and Pillow versions are pinned to the tested v2 environment, including the bounding-box editor compatibility adapter:
 
 ```sh
 python -m venv .venv
@@ -101,7 +136,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The first model-backed run may need to obtain the configured Hugging Face model weights. `pyarrow` is included for the documented `pandas.read_parquet` extraction path.
+The first model-backed run may need to obtain the configured SigLIP2, Grounding DINO, and SAM2 Hugging Face model weights. `pyarrow` is included for the documented `pandas.read_parquet` extraction path.
 
 Users must obtain the required source data and images independently under the applicable upstream terms. The repository currently provides no hosted artifact download URL. To run retrieval, users must either generate the four-file artifact bundle locally or obtain the complete aligned bundle separately from a trusted source. In either case, these files and the catalog images referenced by `embeddings/image_paths.pkl` must be present:
 
@@ -138,7 +173,7 @@ Start the Streamlit application from the repository root:
 .venv/bin/streamlit run ui/app.py
 ```
 
-Then open the local URL printed by Streamlit (normally `http://localhost:8501`). Upload an image or provide an image plus optional text. For image-backed searches, the sidebar can switch between raw FAISS order and reranked order. Filters are applied after ranking. The interface also accepts a text-only query, but the current ranking-control flow overwrites those results; use the API below for text-only retrieval until that UI limitation is fixed.
+Then open the local URL printed by Streamlit (normally `http://localhost:8501`). Choose a product photo or outfit/model photo in the sidebar, then upload an image or enter a text query where available. For image-backed searches, the sidebar can switch between raw FAISS order and reranked order. Filters are applied after ranking.
 
 ### Image-to-image search
 
@@ -156,7 +191,7 @@ indices, paths, scores, query_embedding = engine.search("query.png", k=20)
 
 ### Text-to-image search
 
-Text search tokenizes and encodes the query with the same model, normalizes the vector, computes its inner product against every stored embedding with NumPy, sorts the scores, and applies the engine's sigmoid score scaling. `RetrievalEngine.text_search` is the reliable text-only entry point. The UI calls it for 12 candidates, but its subsequent FAISS/reranked selector currently replaces the text-only result list with an empty image-result list.
+Text search tokenizes and encodes the query with the same model, normalizes the vector, computes its inner product against every stored embedding with NumPy, sorts the scores, and applies the engine's sigmoid score scaling. The UI and `RetrievalEngine.text_search` both support text-only retrieval.
 
 ```python
 indices, paths, scores, text_embedding = engine.text_search(
@@ -167,9 +202,17 @@ indices, paths, scores, text_embedding = engine.text_search(
 
 When both an image and text are supplied, `multimodal_search` retrieves candidates by image first and calculates text scores within that candidate set.
 
+### Outfit/model-photo search
+
+Select **Outfit / model photo** and upload an image. Grounding DINO runs once for a new upload, using the vocabulary in `DETECTION_CATEGORIES`, then category-aware NMS removes overlapping candidates where appropriate. The resulting detections remain in Streamlit session state, so checkbox reruns only change which boxes are visible and selected; they do not rerun detection.
+
+Review the candidates before segmentation. Checkboxes hide or show individual detections, **Delete** removes one detection without changing another item's selection state, **Reset detections** reruns detection, and **Edit / Add boxes** supports correcting existing boxes or drawing a box around a missed garment. Detection IDs remain stable across these interactions.
+
+Choose **Segment selected items** to run SAM2 only on the selected boxes. Each mask is used to isolate and crop its garment on a light gray background. Select **Search similar** beside an isolated garment to run SigLIP2 embedding, zero-shot metadata generation, FAISS retrieval, metadata-aware reranking, and complementary recommendations. Detections, segmented outputs, and the selected garment search persist across normal reruns; uploading a different image resets the outfit state.
+
 ## Metadata extraction and reranking
 
-`ZeroShotCategoryClassifier` averages normalized embeddings from prompt templates to classify catalog and query embeddings. Category labels map into four groups: `Tops`, `Bottoms`, `One-Pieces`, and `Outerwear`. The attribute configuration in `config.py` defines the supported material, neckline, occasion, pattern, sleeve, structure, style, and detail labels.
+`ZeroShotCategoryClassifier` averages normalized embeddings from prompt templates to classify catalog and query embeddings. Category labels map into `Tops`, `Bottoms`, `One-Pieces`, `Outerwear`, `Accessories`, and `Footwear`. The attribute configuration in `config.py` defines the supported material, neckline, occasion, pattern, sleeve, structure, style, and detail labels. `DETECTION_CATEGORIES` is the source of truth for Grounding DINO's detection vocabulary and broad-category mapping; `CATEGORY_MAPPING` extends it with retrieval-only labels.
 
 Color extraction uses, in order:
 
@@ -220,6 +263,10 @@ The values below are copied from `evaluation/metrics_summary.csv` without changi
 | nDCG@5 | 0.6941470673575368 | 0.754333931398646 | 0.06018686404110918 |
 | nDCG@10 | 0.7171694596384555 | 0.7973206828190946 | 0.08015122318063916 |
 | nDCG@20 | 0.7709128454744812 | 0.8468669135666482 | 0.07595406809216698 |
+
+### GroundedSAM v2 outfit evaluation
+
+The v2 extraction workflow was evaluated on 32 outfit/model images containing 70 visible garments. It achieved **88.6% garment detection recall**, and **96.9% of produced masks were rated Good or Usable**. See the lightweight [GroundedSAM v2 evaluation summary](docs/evaluation/groundedsam_v2_summary.md) for aggregate counts and rating definitions; the raw working sheet and per-image remarks are not committed.
 
 ## Latency benchmark
 
@@ -303,27 +350,34 @@ python index/build_index.py
 - **Dataset:** [`lirus18/deepfashion_with_captions`](https://huggingface.co/datasets/lirus18/deepfashion_with_captions), the primary dataset source used by this repository. The extractor reads the `cloth` image field and `caption` field from the Parquet shards.
 - **Additional product images:** 420+ product images manually collected from Zara product pages, mainly covering bottoms, one-pieces, and outerwear to improve category coverage. These images are used for research and portfolio experimentation only and are not redistributed in this repository; users should obtain any required source images independently and comply with the original website terms and applicable rights.
 - **Model:** [`timm/ViT-gopt-16-SigLIP2-384`](https://huggingface.co/timm/ViT-gopt-16-SigLIP2-384), configured as `hf-hub:timm/ViT-gopt-16-SigLIP2-384` for both model and tokenizer loading through `open_clip`.
+- **Detection model:** [`IDEA-Research/grounding-dino-base`](https://huggingface.co/IDEA-Research/grounding-dino-base), used to locate candidate fashion items and provide coarse labels in outfit/model photos.
+- **Segmentation model:** [`facebook/sam2.1-hiera-large`](https://huggingface.co/facebook/sam2.1-hiera-large), used for box-prompted garment masks after detection review.
 
-Dataset files, extracted images, evaluation images, and captions remain governed by the upstream dataset terms. Nothing in this repository establishes additional redistribution permission. Review and comply with the upstream terms before distributing any dataset-derived content.
+Dataset files, extracted images, evaluation images, and captions remain governed by the upstream dataset terms. Model weights remain governed by their respective model terms. Nothing in this repository establishes additional redistribution permission. Review and comply with the upstream terms before distributing any dataset-derived content.
+
+## Version history
+
+- **v1:** SigLIP2 visual/text retrieval, FAISS search, zero-shot metadata classification, metadata-aware reranking, and complementary recommendations.
+- **v2:** Grounding DINO and SAM2 outfit-garment extraction, human-in-the-loop bounding-box review, segmented-garment search, expanded fashion detection support, and the updated Streamlit UI.
 
 ## Limitations
 
 - The quality study is a small, manually labeled pilot of 21 queries and a judged top-result union, not an exhaustive recall benchmark.
 - The pilot queries do not establish performance across the full catalog, all garment groups, difficult backgrounds, or natural user-query distributions.
 - Category and attribute labels are zero-shot predictions from a fixed label and prompt set, not verified product annotations.
+- Grounding DINO detections and SAM2 masks can require human correction for occlusion, layering, small garments, or ambiguous boundaries.
 - HSV color rules and foreground segmentation can fail on complex backgrounds, transparency, shadows, small garments, and ambiguous or multicolored items; GrabCut can add large tail latency.
 - `IndexFlatIP` is exact but scans the index; latency and memory usage will grow with the catalog.
 - Text-only search uses a full NumPy similarity calculation rather than the FAISS index.
-- The current Streamlit ranking selector overwrites text-only results; text-only retrieval is available through `RetrievalEngine.text_search`, while image-plus-text search works through the image-backed UI path.
 - The committed latency outputs do not include hardware, operating system, model-cache, or device metadata.
-- Dependency versions and the Python version are not pinned, which limits byte-for-byte environment reproduction.
+- The Python version and upstream model revisions are not pinned, which limits byte-for-byte environment reproduction.
 
 ## Future work
 
 - Expand the labeled benchmark across more queries, garment groups, backgrounds, and text intents, with a documented annotation protocol and assessor agreement.
 - Add exhaustive or deeper pooled judgments before reporting recall-oriented metrics.
 - Record benchmark hardware, device, software versions, model revision, and artifact version automatically.
-- Pin a tested Python environment and upstream model revision.
+- Pin a tested Python version and upstream model revisions.
 - Add artifact-manifest validation at load time to prevent accidental cross-run mixing.
 - Improve foreground/color robustness and reduce or isolate GrabCut tail latency.
 - Evaluate approximate FAISS indexes and batching for larger catalogs.

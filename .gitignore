@@ -33,7 +33,8 @@ Thumbs.db
 *~
 
 # Repository-local temporary and debug output
-tmp_query.png
+tmp_*.png
+seg.jpeg
 debug_color_masks/
 *.tmp
 *.temp
@@ -49,6 +50,7 @@ dataset/extracted_captions/
 evaluation/new_items_to_grade.csv
 evaluation/query_metadata.csv
 evaluation/judgments_before_dedup.csv
+evaluation/grounded_sam_evaluation.csv
 
 # Version-aligned generated search artifacts
 embeddings/embeddings.npy

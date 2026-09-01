@@ -1,12 +1,38 @@
 import os
 import sys
+import copy
+import hashlib
+import importlib
+import tempfile
 from pathlib import Path
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
 
-import streamlit as st
+import cv2
+import numpy as np
 from PIL import Image
+import streamlit as st
+from streamlit.elements.lib.image_utils import image_to_url as streamlit_image_to_url
+from streamlit.elements.lib.layout_utils import LayoutConfig
+
+
+def _label_kit_image_to_url(image, width, clamp, channels, output_format, image_id):
+    return streamlit_image_to_url(
+        image,
+        LayoutConfig(width=width),
+        clamp,
+        channels,
+        output_format,
+        image_id,
+    )
+
+
+label_kit_detection = importlib.import_module(
+    "streamlit_label_kit.LabelToolKit.detection"
+)
+label_kit_detection.image_to_url = _label_kit_image_to_url
+detection = label_kit_detection.detection
 
 from api.recommendationEngine import RecommendationEngine
 from api.retrievalEngine import RetrievalEngine
@@ -16,16 +42,22 @@ from config import (
     ATTRIBUTE_CONFIG,
     CATEGORY_MAPPING,
     METADATA_PATH,
+    DETECTION_CATEGORIES,
     get_classifier_kwargs,
     get_engine_kwargs_with_metadata,
     get_recommender_kwargs,
+    get_grounded_sam_kwargs,
 )
 from embeddings.buildMetadata import MetadataBuilder
+from api.segment import GroundedSAM, Detection
 
 
 st.set_page_config(layout="wide")
 st.title("Fashion Visual Search")
 
+@st.cache_resource
+def load_grounded_sam():
+    return GroundedSAM(**get_grounded_sam_kwargs())
 
 @st.cache_resource
 def load_engine():
@@ -41,6 +73,35 @@ def load_engine():
 engine, classifier, builder, reranker, recommender = load_engine()
 
 
+for key, default in {
+    "outfit_image_key": None,
+    "detections": None,
+    "edit_boxes": False,
+    "bbox_editor_result": None,
+    "bbox_editor_epoch": 0,
+    "segmented_detections": None,
+    "outfit_search": None,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
+
+
+def clear_outfit_results():
+    st.session_state.segmented_detections = None
+    st.session_state.outfit_search = None
+
+
+def reset_outfit_state(image_key):
+    for key in list(st.session_state):
+        if key.startswith("selected_"):
+            del st.session_state[key]
+    st.session_state.outfit_image_key = image_key
+    st.session_state.detections = None
+    st.session_state.edit_boxes = False
+    st.session_state.bbox_editor_result = None
+    st.session_state.bbox_editor_epoch += 1
+    clear_outfit_results()
+
 def get_attribute_caption(item):
     parts = []
     material = item.get("material")
@@ -54,183 +115,461 @@ def get_attribute_caption(item):
             parts.append(sleeve)
     return " • ".join(parts)
 
+def show_query_image(query_image: Image.Image):
+    st.subheader("Query Image")
+    st.image(query_image, width=300)
 
-groups = ["All"] + sorted(set(CATEGORY_MAPPING.values()))
-selected_group = st.sidebar.selectbox("Group", groups)
-if selected_group == "All":
-    categories = ["All"] + sorted(CATEGORY_MAPPING.keys())
-else:
-    categories = ["All"] + sorted(
-        [cat for cat, grp in CATEGORY_MAPPING.items() if grp == selected_group]
+def show_metadata(query_metadata):
+    st.markdown(f"### {query_metadata['category'].title()} ({query_metadata['color']})")
+    attribute_caption = get_attribute_caption(query_metadata)
+    if attribute_caption:
+        st.caption(attribute_caption)
+    secondary_parts = []
+    for key in ["pattern", "structure", "style"]:
+        value = query_metadata.get(key)
+        if value:
+            secondary_parts.append(value)
+    if secondary_parts:
+        st.caption(" • ".join(secondary_parts))
+    occasion = query_metadata.get("occasion")
+    if occasion:
+        st.caption(f"Best for: {occasion}")
+
+def show_detection(image: Image.Image, detections):
+    img = np.array(image.convert("RGB")).copy()
+    for det in detections:
+        x1, y1, x2, y2 = det.box
+        cv2.rectangle(img, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+        label = (
+            det.label
+            if getattr(det, "manual", False)
+            else f"{det.label} {det.score * 100:.1f}%"
+        )
+        (text_width, text_height), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+        cv2.rectangle(img, (int(x1), int(y1) - text_height - baseline), (int(x1) + text_width + 12, int(y1)), (0, 255, 0), -1)
+        cv2.putText(img, label, (int(x1) + 6, int(y1) - baseline), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+    return Image.fromarray(img)
+
+def resize_canvas(image: Image.Image, max_height=720, max_width=720):
+    width, height = image.size
+    x_scale = max_width / width
+    y_scale = max_height / height
+    scale = min(x_scale, y_scale, 1.0)
+    if scale == 1.0:
+        return image, scale
+    resized_image = image.resize((int(width * scale), int(height * scale)), Image.LANCZOS)
+    return resized_image, scale
+
+def _clip_box(box, image_size):
+    width, height = image_size
+    x1, y1, x2, y2 = [float(value) for value in box]
+    x1, x2 = sorted((max(0.0, min(x1, width)), max(0.0, min(x2, width))))
+    y1, y2 = sorted((max(0.0, min(y1, height)), max(0.0, min(y2, height))))
+    return [x1, y1, x2, y2]
+
+def show_bbox_editor(query_image, detections):
+    st.markdown("### Edit / Add Bounding Boxes")
+    st.caption("Drag existing boxes to adjust them, or draw a new box for a missing item.")
+    label_list = list(DETECTION_CATEGORIES.keys())
+    bboxes = [[float(v) for v in det.box] for det in detections]
+    bbox_ids = [det.id for det in detections]
+    labels = [label_list.index(det.label) for det in detections]
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as editor_file:
+        editor_path = editor_file.name
+    try:
+        query_image.save(editor_path)
+        result = detection(
+            image_path=editor_path,
+            label_list=label_list,
+            bboxes=bboxes,
+            bbox_ids=bbox_ids,
+            labels=labels,
+            bbox_format="XYXY",
+            read_only=False,
+            bbox_show_label=True,
+            item_editor=True,
+            item_selector=True,
+            class_select_type="select",
+            ui_size="medium",
+            image_width=720,
+            image_height=720,
+            key=f"bbox_editor_{st.session_state.bbox_editor_epoch}",
+        )
+    finally:
+        os.unlink(editor_path)
+    if result and result.get("key"):
+        st.session_state.bbox_editor_result = result
+    save_col, cancel_col = st.columns(2)
+    with save_col:
+        if st.button("Save boxes"):
+            editor_result = st.session_state.get("bbox_editor_result")
+            if editor_result is None:
+                st.warning("No bounding-box changes found.")
+                return
+            updated_detections = []
+            for item in editor_result.get("bbox", []):
+                box = _clip_box(item["bboxes"], query_image.size)
+                if box[2] <= box[0] or box[3] <= box[1]:
+                    continue
+                label = item["label_names"]
+                bbox_id = item.get("bbox_ids")
+                existing = next((det for det in detections if det.id == bbox_id), None)
+                if existing is not None:
+                    changed = existing.label != label or not np.allclose(existing.box, box)
+                    existing.box = box
+                    existing.label = label
+                    existing.category = DETECTION_CATEGORIES[label]
+                    existing.mask = None
+                    existing.manual = getattr(existing, "manual", False) or changed
+                    updated_detections.append(existing)
+                else:
+                    updated_detections.append(
+                        Detection(
+                            label=label,
+                            category=DETECTION_CATEGORIES[label],
+                            score=0.0,
+                            box=box,
+                            manual=True,
+                        )
+                    )
+            updated_ids = {det.id for det in updated_detections}
+            for det in detections:
+                if det.id not in updated_ids:
+                    st.session_state.pop(f"selected_{det.id}", None)
+            st.session_state.detections = updated_detections
+            st.session_state.bbox_editor_result = None
+            st.session_state.bbox_editor_epoch += 1
+            clear_outfit_results()
+            st.session_state.edit_boxes = False
+            st.rerun()
+    with cancel_col:
+        if st.button("Cancel"):
+            st.session_state.bbox_editor_result = None
+            st.session_state.bbox_editor_epoch += 1
+            st.session_state.edit_boxes = False
+            st.rerun()
+
+
+def isolate_detection(image, det):
+    image_array = np.asarray(image.convert("RGB"))
+    mask = det.mask.squeeze().cpu().numpy() if hasattr(det.mask, "cpu") else np.squeeze(det.mask)
+    mask = mask.astype(bool)
+    if mask.shape != image_array.shape[:2]:
+        mask = cv2.resize(
+            mask.astype(np.uint8), image.size, interpolation=cv2.INTER_NEAREST
+        ).astype(bool)
+    isolated = np.full_like(image_array, 245)
+    isolated[mask] = image_array[mask]
+    x1, y1, x2, y2 = _clip_box(det.box, image.size)
+    left, top = int(np.floor(x1)), int(np.floor(y1))
+    right, bottom = int(np.ceil(x2)), int(np.ceil(y2))
+    return Image.fromarray(isolated[top:bottom, left:right])
+
+
+def search_segmented_item(item_image, detection_id):
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as query_file:
+        query_path = query_file.name
+    try:
+        item_image.save(query_path)
+        indices, _, image_scores, query_embedding = engine.search(query_path, k=50)
+        query_metadata = builder.extract_all_metadata(query_embedding, query_path)
+    finally:
+        os.unlink(query_path)
+    faiss_results = engine.enrich_search_result(indices, image_scores=image_scores)
+    rerank_results = reranker.rerank(
+        [dict(result) for result in faiss_results],
+        query_category=query_metadata["category"],
+        query_group=query_metadata["group"],
+        query_color=query_metadata,
     )
-selected_category = st.sidebar.selectbox("Category", categories)
-selected_color = st.sidebar.selectbox(
-    "Color",
-    [
-        "All",
-        "black",
-        "white",
-        "grey",
-        "red",
-        "orange",
-        "yellow",
-        "green",
-        "blue",
-        "purple",
-        "pink",
-    ],
-)
-selected_style = st.sidebar.selectbox(
-    "Style", ["All"] + sorted(set(ATTRIBUTE_CONFIG["style"]["labels"]))
-)
-selected_occasion = st.sidebar.selectbox(
-    "Occasion", ["All"] + sorted(set(ATTRIBUTE_CONFIG["occasion"]["labels"]))
-)
-selected_material = st.sidebar.selectbox(
-    "Material", ["All"] + sorted(set(ATTRIBUTE_CONFIG["material"]["labels"]))
-)
+    return {
+        "detection_id": detection_id,
+        "query_image": item_image,
+        "metadata": query_metadata,
+        "faiss_results": faiss_results,
+        "rerank_results": rerank_results,
+        "recommendations": recommender.recommend(query_metadata=query_metadata, k=4),
+    }
+
+
+def show_segmented_items(query_image, detections):
+    st.markdown("### Segmented Garments")
+    for det in detections:
+        item_image = isolate_detection(query_image, det)
+        preview_image, _ = resize_canvas(
+            item_image, max_height=220, max_width=220
+        )
+        garment_col, action_col = st.columns([2.3, 1])
+        with garment_col:
+            st.image(preview_image, width=preview_image.width)
+        with action_col:
+            if st.button("Search similar", key=f"search_segment_{det.id}"):
+                st.session_state.outfit_search = search_segmented_item(
+                    item_image, det.id
+                )
+                st.rerun()
+
+
+def show_search_results(faiss_results, rerank_results, rank_mode,
+                        selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material,
+                        recommendations=None, uploaded_file=None):
+    if rank_mode == "FAISS":
+        final_results = faiss_results
+    elif rank_mode == "Reranked":
+        final_results = rerank_results
+
+    if final_results:
+        if selected_group != "All":
+            final_results = [res for res in final_results if res["group"] == selected_group]
+        if selected_category != "All":
+            final_results = [res for res in final_results if res["category"] == selected_category]
+        if selected_color != "All":
+            final_results = [res for res in final_results if res["color"] == selected_color]
+        if selected_style != "All":
+            final_results = [res for res in final_results if res["style"] == selected_style]
+        if selected_occasion != "All":
+            final_results = [res for res in final_results if res["occasion"] == selected_occasion]
+        if selected_material != "All":
+            final_results = [res for res in final_results if res["material"] == selected_material]
+
+    st.markdown("---")
+    st.subheader("Top Matches")
+
+    if not final_results:
+        st.warning("No results found matching the selected filters.")
+    else:
+        display_results = final_results[:8]
+        num_cols = 4
+
+        for row_start in range(0, len(display_results), num_cols):
+            row_items = display_results[row_start : row_start + num_cols]
+            cols = st.columns(num_cols)
+
+            for col, result in zip(cols, row_items):
+                with col:
+                    img = Image.open(result["image_path"]).convert("RGB")
+                    st.image(img, use_container_width=True)
+                    title = f"{result['color'].title()} {result['category'].title()}"
+                    st.markdown(f"**{title}**")
+                    st.caption(f"File: {Path(result['image_path']).name}")
+                    match_score = result.get(
+                        "final_score",
+                        result.get("image_score", result.get("text_score", 0)),
+                    )
+                    st.caption(f"Match Score: {match_score * 100:.2f}%")
+                    attribute_caption = get_attribute_caption(result)
+                    if attribute_caption:
+                        st.caption(attribute_caption)
+                    st.caption(f"{result['pattern']} • {result['style']}")
+
+        if recommendations and uploaded_file:
+            st.markdown("---")
+            st.subheader("Recommended Matches")
+
+            rec_cols = st.columns(4)
+
+            for i, rec in enumerate(recommendations):
+                with rec_cols[i % 4]:
+                    img = Image.open(rec["image_path"]).convert("RGB")
+                    st.image(img, use_container_width=True)
+                    title = f"{rec['color'].title()} {rec['category'].title()}"
+                    st.markdown(f"**{title}**")
+
+                    st.caption(f"File: {Path(rec['image_path']).name}")
+
+                    st.caption(
+                        f"Recommendation Score: {rec['recommendation_score'] * 100:.2f}%"
+                    )
+                    attribute_caption = get_attribute_caption(rec)
+                    if attribute_caption:
+                        st.caption(attribute_caption)
+                    st.caption(f"{rec['pattern']} • {rec['style']}")
+
+with st.sidebar:
+    st.subheader("Search")
+    image_type = st.radio("Search from", ["Product photo", "Outfit / model photo"])
+    rank_mode = st.radio("Ranking", ["FAISS", "Reranked"])
+
+    st.divider()
+
+    groups = ["All"] + sorted(set(CATEGORY_MAPPING.values()))
+    selected_group = st.selectbox("Group", groups)
+
+    if selected_group == "All":
+        categories = ["All"] + sorted(CATEGORY_MAPPING.keys())
+    else:
+        categories = ["All"] + sorted(
+            [cat for cat, grp in CATEGORY_MAPPING.items() if grp == selected_group]
+        )
+    selected_category = st.selectbox("Category", categories)
+    selected_color = st.selectbox(
+        "Color",
+        [
+            "All",
+            "black",
+            "white",
+            "grey",
+            "red",
+            "orange",
+            "yellow",
+            "green",
+            "blue",
+            "purple",
+            "pink",
+        ],
+    )
+    selected_style = st.selectbox(
+        "Style", ["All"] + sorted(set(ATTRIBUTE_CONFIG["style"]["labels"]))
+    )
+    selected_occasion = st.selectbox(
+        "Occasion", ["All"] + sorted(set(ATTRIBUTE_CONFIG["occasion"]["labels"]))
+    )
+    selected_material = st.selectbox(
+        "Material", ["All"] + sorted(set(ATTRIBUTE_CONFIG["material"]["labels"]))
+    )
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "bmp"])
-text_query = st.text_input("Optional text query", "")
+text_query = None if image_type == "Outfit / model photo" else st.text_input("Optional text query", "")
+
+query_image = None
 faiss_results = []
 rerank_results = []
 final_results = []
 recommendations = []
-
 if not uploaded_file and not text_query:
     st.info("Upload an image, enter a text query, or both.")
 elif text_query and not uploaded_file:
     indices, _, text_scores, _ = engine.text_search(text_query, k=12)
-    results_info = engine.enrich_search_result(indices, text_scores=text_scores)
-    final_results = reranker.rerank(results_info)
-elif uploaded_file and not text_query:
-    query_image = Image.open(uploaded_file).convert("RGB")
-    st.subheader("Query Image")
-    st.image(query_image, width=300)
-    tmp_path = os.path.join(PROJECT_ROOT, "tmp_query.png")
-    query_image.save(tmp_path)
-    
-    indices, _, image_scores, query_embedding = engine.search(tmp_path, k=50)
-    query_metadata = builder.extract_all_metadata(query_embedding, tmp_path)
-    recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
-    st.markdown(
-        f"### {query_metadata['category'].title()} ({query_metadata['color']})"
-    )
-    st.caption(
-        f"{query_metadata['material']} • {query_metadata['neckline']} • "
-        f"{query_metadata['sleeve']}"
-    )
-    st.caption(
-        f"{query_metadata['pattern']} • {query_metadata['structure']} • "
-        f"{query_metadata['style']}"
-    )
-    st.caption(f"Best for: {query_metadata['occasion']}")
-
-    faiss_results = engine.enrich_search_result(indices, image_scores=image_scores)
-    rerank_results = reranker.rerank(
-        [dict(result) for result in faiss_results],
-        query_category=query_metadata["category"],
-        query_group=query_metadata["group"],
-        query_color=query_metadata,
-    )
-elif uploaded_file and text_query:
-    query_image = Image.open(uploaded_file).convert("RGB")
-    st.subheader("Query Image")
-    st.image(query_image, width=300)
-    tmp_path = os.path.join(PROJECT_ROOT, "tmp_query.png")
-    query_image.save(tmp_path)
-    
-    indices, _, image_scores, text_scores, query_image_embedding, _ = (
-        engine.multimodal_search(tmp_path, text_query, k=50)
-    )
-    query_metadata = builder.extract_all_metadata(query_image_embedding, tmp_path)
-    recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
-    st.markdown(
-        f"### {query_metadata['category'].title()} ({query_metadata['color']})"
-    )
-    st.caption(
-        f"{query_metadata['material']} • {query_metadata['neckline']} • "
-        f"{query_metadata['sleeve']}"
-    )
-    st.caption(
-        f"{query_metadata['pattern']} • {query_metadata['structure']} • "
-        f"{query_metadata['style']}"
-    )
-    st.caption(f"Best for: {query_metadata['occasion']}")
-    st.markdown(f"**Text Query:** {text_query}")
-    faiss_results = engine.enrich_search_result(indices, image_scores=image_scores)
-    rerank_results = reranker.rerank(
-        [dict(result) for result in faiss_results],
-        query_category=query_metadata["category"],
-        query_group=query_metadata["group"],
-        query_color=query_metadata,
-    )
-
-rank_mode = st.sidebar.radio("Ranking", ["FAISS", "Reranked"])
-if rank_mode == "FAISS":
-    final_results = faiss_results
-elif rank_mode == "Reranked":
-    final_results = rerank_results
-
-if final_results:
-    if selected_group != "All":
-        final_results = [res for res in final_results if res["group"] == selected_group]
-    if selected_category != "All":
-        final_results = [res for res in final_results if res["category"] == selected_category]
-    if selected_color != "All":
-        final_results = [res for res in final_results if res["color"] == selected_color]
-    if selected_style != "All":
-        final_results = [res for res in final_results if res["style"] == selected_style]
-    if selected_occasion != "All":
-        final_results = [res for res in final_results if res["occasion"] == selected_occasion]
-    if selected_material != "All":
-        final_results = [res for res in final_results if res["material"] == selected_material]
-
-st.markdown("---")
-st.subheader("Top Matches")
-
-if not final_results:
-    st.warning("No results found matching the selected filters.")
+    faiss_results = engine.enrich_search_result(indices, text_scores=text_scores)
+    rerank_results = reranker.rerank(faiss_results)
+    show_search_results(faiss_results, rerank_results, rank_mode,
+                        selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material)
 else:
-    display_results = final_results[:8]
-    num_cols = 4
-
-    for row_start in range(0, len(display_results), num_cols):
-        row_items = display_results[row_start : row_start + num_cols]
-        cols = st.columns(num_cols)
-
-        for col, result in zip(cols, row_items):
-            with col:
-                img = Image.open(result["image_path"]).convert("RGB")
-                st.image(img, use_container_width=True)
-                title = f"{result['color'].title()} {result['category'].title()}"
-                st.markdown(f"**{title}**")
-                st.caption(f"File: {Path(result['image_path']).name}")
-                st.caption(f"Match Score: {result.get('final_score', 0) * 100:.2f}%")
-                attribute_caption = get_attribute_caption(result)
-                if attribute_caption:
-                    st.caption(attribute_caption)
-                st.caption(f"{result['pattern']} • {result['style']}")
-
-    if recommendations and uploaded_file:
-        st.markdown("---")
-        st.subheader("Recommended Matches")
-
-        rec_cols = st.columns(4)
-
-        for i, rec in enumerate(recommendations):
-            with rec_cols[i % 4]:
-                img = Image.open(rec["image_path"]).convert("RGB")
-                st.image(img, use_container_width=True)
-                title = f"{rec['color'].title()} {rec['category'].title()}"
-                st.markdown(f"**{title}**")
-
-                st.caption(f"File: {Path(rec['image_path']).name}")
-
-                st.caption(
-                    f"Recommendation Score: {rec['recommendation_score'] * 100:.2f}%"
+    query_image = Image.open(uploaded_file).convert("RGB")
+    if image_type == "Product photo":
+        show_query_image(query_image)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as query_file:
+            query_path = query_file.name
+        try:
+            query_image.save(query_path)
+            text_scores = None
+            if not text_query:
+                indices, _, image_scores, query_embedding = engine.search(
+                    query_path, k=50
                 )
-                attribute_caption = get_attribute_caption(rec)
-                if attribute_caption:
-                    st.caption(attribute_caption)
-                st.caption(f"{rec['pattern']} • {rec['style']}")
+            else:
+                indices, _, image_scores, text_scores, query_embedding, _ = (
+                    engine.multimodal_search(query_path, text_query, k=50)
+                )
+                st.markdown(f"**Text Query:** {text_query}")
+            query_metadata = builder.extract_all_metadata(query_embedding, query_path)
+        finally:
+            os.unlink(query_path)
+        show_metadata(query_metadata)
+        recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
+        faiss_results = engine.enrich_search_result(
+            indices, image_scores=image_scores, text_scores=text_scores
+        )
+        rerank_results = reranker.rerank(
+            [dict(result) for result in faiss_results],
+            query_category=query_metadata["category"],
+            query_group=query_metadata["group"],
+            query_color=query_metadata,
+        )
+        show_search_results(faiss_results, rerank_results, rank_mode,
+                           selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material,
+                           recommendations=recommendations, uploaded_file=uploaded_file)
+    else:
+        image_key = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
+        if st.session_state.outfit_image_key != image_key:
+            reset_outfit_state(image_key)
+
+        segmenter = load_grounded_sam()
+        if st.session_state.detections is None:
+            detections = segmenter.detect(query_image)
+            detections = segmenter.category_nms(detections)
+            st.session_state.detections = detections
+        else:
+            detections = st.session_state.detections
+
+        if not st.session_state.edit_boxes:
+            has_segments = bool(st.session_state.segmented_detections)
+            left, center, right = st.columns([0.25, 3.5, 0.25])
+            with center:
+                if has_segments:
+                    image_col, item_col, spacer_col, segment_col = st.columns([1.4, 0.9, 0.25, 1.2])
+                else:
+                    image_col, item_col = st.columns([1.4, 0.8])
+                selected_detections = []
+                with item_col:
+                    st.markdown("### Detected Items")
+                    for det in detections:
+                        row = st.columns([3, 1])
+                        with row[0]:
+                            detection_name = det.label.title()
+                            if getattr(det, "manual", False):
+                                detection_name += " (Manual)"
+                            else:
+                                detection_name += f" ({det.score:.0%})"
+                            selected = st.checkbox(detection_name, value=True, key=f"selected_{det.id}")
+                            if selected:
+                                selected_detections.append(det)
+                        with row[1]:
+                            if st.button("Delete", key=f"delete_{det.id}"):
+                                st.session_state.detections = [d for d in st.session_state.detections if d.id != det.id]
+                                st.session_state.pop(f"selected_{det.id}", None)
+                                clear_outfit_results()
+                                st.rerun()
+                    if st.button("Edit / Add boxes"):
+                        st.session_state.bbox_editor_result = None
+                        st.session_state.bbox_editor_epoch += 1
+                        st.session_state.edit_boxes = True
+                        st.rerun()
+                    if st.button("Reset detections"):
+                        for det in st.session_state.detections:
+                            st.session_state.pop(f"selected_{det.id}", None)
+                        st.session_state.detections = None
+                        st.session_state.bbox_editor_result = None
+                        st.session_state.bbox_editor_epoch += 1
+                        clear_outfit_results()
+                        st.rerun()
+                    if st.button("Segment selected items", type="primary"):
+                        if selected_detections:
+                            st.session_state.segmented_detections = segmenter.segment(
+                                query_image, copy.deepcopy(selected_detections)
+                            )
+                            st.session_state.outfit_search = None
+                            st.rerun()
+                        else:
+                            st.warning("Select at least one detection to segment.")
+                annotated_image = show_detection(query_image, selected_detections)
+                resized_image, _ = resize_canvas(annotated_image)
+                with image_col:
+                    st.image(resized_image, caption="Detected fashion items")
+                if has_segments:
+                    with segment_col:
+                        show_segmented_items(
+                            query_image, st.session_state.segmented_detections
+                        )
+
+            if st.session_state.outfit_search:
+                search = st.session_state.outfit_search
+                st.markdown("---")
+                st.subheader("Selected Garment Search")
+                show_query_image(search["query_image"])
+                show_metadata(search["metadata"])
+                show_search_results(
+                    search["faiss_results"],
+                    search["rerank_results"],
+                    rank_mode,
+                    selected_group,
+                    selected_category,
+                    selected_color,
+                    selected_style,
+                    selected_occasion,
+                    selected_material,
+                    recommendations=search["recommendations"],
+                    uploaded_file=True,
+                )
+        else:
+            show_bbox_editor(query_image, detections)

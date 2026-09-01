@@ -10,10 +10,13 @@ IMAGE_PATHS_PATH = os.path.join(PROJECT_ROOT, "embeddings/image_paths.pkl")
 METADATA_PATH = os.path.join(PROJECT_ROOT, "embeddings/metadata.pkl")
 
 MODEL_NAME = "hf-hub:timm/ViT-gopt-16-SigLIP2-384"
+GROUNDING_DINO_MODEL = "IDEA-Research/grounding-dino-base"
+SAM2_MODEL = "facebook/sam2.1-hiera-large"
 TOKENIZER_NAME = "hf-hub:timm/ViT-gopt-16-SigLIP2-384"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-CATEGORY_MAPPING = {
+DETECTION_CATEGORIES = {
+    "shirt": "Tops",
     "t-shirt": "Tops",
     "blouse": "Tops",
     "tank top": "Tops",
@@ -21,17 +24,30 @@ CATEGORY_MAPPING = {
     "sweater": "Tops",
     "hoodie": "Tops",
     "sweatshirt": "Tops",
-    "polo": "Tops",
-    "trousers": "Bottoms",
+
+    "pants": "Bottoms",
     "jeans": "Bottoms",
     "shorts": "Bottoms",
     "skirt": "Bottoms",
-    "leggings": "Bottoms",
+
     "dress": "One-Pieces",
-    "jumpsuit": "One-Pieces",
-    "bodysuit": "One-Pieces",
+
     "jacket": "Outerwear",
     "coat": "Outerwear",
+    "cardigan": "Outerwear",
+
+    "handbag": "Accessories",
+    "shoes": "Footwear"
+}
+
+
+CATEGORY_MAPPING = {
+    **DETECTION_CATEGORIES,
+    "polo": "Tops",
+    "trousers": "Bottoms",
+    "leggings": "Bottoms",
+    "jumpsuit": "One-Pieces",
+    "bodysuit": "One-Pieces",
     "blazer": "Outerwear",
 }
 
@@ -143,6 +159,8 @@ GROUP_RECOMMENDATIONS = {
     "Bottoms": ["Tops"],
     "One-Pieces": ["Outerwear"],
     "Outerwear": ["Tops", "Bottoms", "One-Pieces"],
+    "Accessories": ["Tops", "Bottoms", "One-Pieces", "Outerwear"],
+    "Footwear": ["Bottoms", "One-Pieces"],
 }
 
 COLOR_RECOMMENDATIONS = {
@@ -228,6 +246,14 @@ def get_recommender_kwargs():
         "group_recommendations": GROUP_RECOMMENDATIONS,
         "color_recommendations": COLOR_RECOMMENDATIONS,
         "style_recommendations": STYLE_RECOMMENDATIONS,
+    }
+
+def get_grounded_sam_kwargs():
+    return {
+        "gd_model_name": GROUNDING_DINO_MODEL,
+        "sam_model_name": SAM2_MODEL,
+        "device": DEVICE,
+        "detection_categories": DETECTION_CATEGORIES,
     }
 
 

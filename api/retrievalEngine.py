@@ -26,18 +26,24 @@ class RetrievalEngine:
         device,
         metadata_path=None,
     ):
-        self.index = faiss.read_index(index_path)
-        self.embeddings = np.load(embeddings_path).astype("float32")
-        with open(image_paths_path, "rb") as f:
-            self.image_paths = pickle.load(f)
-        self.metadata = None
-        if metadata_path is not None:
-            with open(metadata_path, "rb") as f:
-                self.metadata = pickle.load(f)
+        # ViT-gopt has a large temporary allocation peak while TIMM constructs
+        # and initializes the model. Build it before keeping retrieval data in
+        # memory so those allocations do not overlap.
+        siglip_threads = int(os.environ.get("SIGLIP_TORCH_THREADS", "1"))
+        torch.set_num_threads(siglip_threads)
         self.model, self.preprocess = create_model_from_pretrained(model_name)
         self.tokenizer = get_tokenizer(tokenizer_name)
         self.device = device
         self.model.to(self.device)
+        self.index = faiss.read_index(index_path)
+        self.embeddings = np.load(embeddings_path).astype("float32", copy=False)
+        with open(image_paths_path, "rb") as f:
+            self.image_paths = pickle.load(f)
+
+        self.metadata = None
+        if metadata_path is not None:
+            with open(metadata_path, "rb") as f:
+                self.metadata = pickle.load(f)
 
     def get_stored_embedding(self, index):
         return self.embeddings[index : index + 1]

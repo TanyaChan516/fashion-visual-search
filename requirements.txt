@@ -3,9 +3,11 @@ matplotlib
 natsort
 numpy
 open_clip_torch
-opencv-python
+opencv-python==4.13.0.92
 pandas
 pyarrow
-Pillow
-streamlit
-torch
+Pillow==11.3.0
+streamlit==1.50.0
+streamlit-label-kit==0.1.3
+torch==2.8.0
+transformers==4.57.6
