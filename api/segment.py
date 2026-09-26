@@ -5,6 +5,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
+import cv2
+import numpy as np
 import torch
 from PIL import Image
 from dataclasses import dataclass, field
@@ -21,6 +23,28 @@ class Detection:
     mask: Any = None
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     manual: bool = False
+
+def _clip_box(box, image_size):
+    width, height = image_size
+    x1, y1, x2, y2 = [float(value) for value in box]
+    x1, x2 = sorted((max(0.0, min(x1, width)), max(0.0, min(x2, width))))
+    y1, y2 = sorted((max(0.0, min(y1, height)), max(0.0, min(y2, height))))
+    return [x1, y1, x2, y2]
+
+def isolate_detection(image, det):
+    image_array = np.asarray(image.convert("RGB"))
+    mask = det.mask.squeeze().cpu().numpy() if hasattr(det.mask, "cpu") else np.squeeze(det.mask)
+    mask = mask.astype(bool)
+    if mask.shape != image_array.shape[:2]:
+        mask = cv2.resize(
+            mask.astype(np.uint8), image.size, interpolation=cv2.INTER_NEAREST
+        ).astype(bool)
+    isolated = np.full_like(image_array, 245)
+    isolated[mask] = image_array[mask]
+    x1, y1, x2, y2 = _clip_box(det.box, image.size)
+    left, top = int(np.floor(x1)), int(np.floor(y1))
+    right, bottom = int(np.ceil(x2)), int(np.ceil(y2))
+    return Image.fromarray(isolated[top:bottom, left:right])
 
 class GroundedSAM:
     def __init__(self, gd_model_name, sam_model_name, device, detection_categories):

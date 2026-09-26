@@ -1,6 +1,5 @@
 import os
 import sys
-import copy
 import hashlib
 import importlib
 import tempfile
@@ -8,6 +7,13 @@ from pathlib import Path
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
+
+import requests
+import base64
+import io
+import json
+
+API_URL = "http://127.0.0.1:8000"
 
 import cv2
 import numpy as np
@@ -34,43 +40,11 @@ label_kit_detection = importlib.import_module(
 label_kit_detection.image_to_url = _label_kit_image_to_url
 detection = label_kit_detection.detection
 
-from api.recommendationEngine import RecommendationEngine
-from api.retrievalEngine import RetrievalEngine
-from api.searchReranker import SearchReranker
-from api.zeroShotClassifier import ZeroShotCategoryClassifier
-from config import (
-    ATTRIBUTE_CONFIG,
-    CATEGORY_MAPPING,
-    METADATA_PATH,
-    DETECTION_CATEGORIES,
-    get_classifier_kwargs,
-    get_engine_kwargs_with_metadata,
-    get_recommender_kwargs,
-    get_grounded_sam_kwargs,
-)
-from embeddings.buildMetadata import MetadataBuilder
-from api.segment import GroundedSAM, Detection
-
+from config import CATEGORY_MAPPING, ATTRIBUTE_CONFIG, DETECTION_CATEGORIES
+from api.segment import Detection, _clip_box
 
 st.set_page_config(layout="wide")
 st.title("Fashion Visual Search")
-
-@st.cache_resource
-def load_grounded_sam():
-    return GroundedSAM(**get_grounded_sam_kwargs())
-
-@st.cache_resource
-def load_engine():
-    engine = RetrievalEngine(**get_engine_kwargs_with_metadata())
-    classifier = ZeroShotCategoryClassifier(engine, **get_classifier_kwargs())
-    classifier.create_embeddings("category")
-    classifier.create_embeddings("attribute")
-    builder = MetadataBuilder(classifier, metadata_path=METADATA_PATH)
-    reranker = SearchReranker()
-    recommender = RecommendationEngine(**get_recommender_kwargs())
-    return engine, classifier, builder, reranker, recommender
-
-engine, classifier, builder, reranker, recommender = load_engine()
 
 
 for key, default in {
@@ -85,11 +59,13 @@ for key, default in {
     if key not in st.session_state:
         st.session_state[key] = default
 
+def base64_to_pil(encoded):
+    image_bytes = base64.b64decode(encoded)
+    return Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
 def clear_outfit_results():
     st.session_state.segmented_detections = None
     st.session_state.outfit_search = None
-
 
 def reset_outfit_state(image_key):
     for key in list(st.session_state):
@@ -159,13 +135,6 @@ def resize_canvas(image: Image.Image, max_height=720, max_width=720):
         return image, scale
     resized_image = image.resize((int(width * scale), int(height * scale)), Image.LANCZOS)
     return resized_image, scale
-
-def _clip_box(box, image_size):
-    width, height = image_size
-    x1, y1, x2, y2 = [float(value) for value in box]
-    x1, x2 = sorted((max(0.0, min(x1, width)), max(0.0, min(x2, width))))
-    y1, y2 = sorted((max(0.0, min(y1, height)), max(0.0, min(y2, height))))
-    return [x1, y1, x2, y2]
 
 def show_bbox_editor(query_image, detections):
     st.markdown("### Edit / Add Bounding Boxes")
@@ -249,64 +218,98 @@ def show_bbox_editor(query_image, detections):
             st.session_state.edit_boxes = False
             st.rerun()
 
+def detect_outfit(uploaded_file):
+    response = requests.post(
+        f"{API_URL}/detect",
+        files={
+            "file": (
+                uploaded_file.name,
+                uploaded_file.getvalue(),
+                uploaded_file.type or "application/octet-stream",
+            )
+        },
+        timeout=180,
+    )
+    response.raise_for_status()
+    return [
+        Detection(
+            id=item["id"],
+            label=item["label"],
+            category=item["category"],
+            score=item["score"],
+            box=item["box"],
+            manual=item["manual"],
+        )
+        for item in response.json()["detections"]
+    ]
 
-def isolate_detection(image, det):
-    image_array = np.asarray(image.convert("RGB"))
-    mask = det.mask.squeeze().cpu().numpy() if hasattr(det.mask, "cpu") else np.squeeze(det.mask)
-    mask = mask.astype(bool)
-    if mask.shape != image_array.shape[:2]:
-        mask = cv2.resize(
-            mask.astype(np.uint8), image.size, interpolation=cv2.INTER_NEAREST
-        ).astype(bool)
-    isolated = np.full_like(image_array, 245)
-    isolated[mask] = image_array[mask]
-    x1, y1, x2, y2 = _clip_box(det.box, image.size)
-    left, top = int(np.floor(x1)), int(np.floor(y1))
-    right, bottom = int(np.ceil(x2)), int(np.ceil(y2))
-    return Image.fromarray(isolated[top:bottom, left:right])
-
+def segment_outfit(uploaded_file, selected_detections):
+    detections_payload = [
+        {
+            "id": det.id,
+            "label": det.label,
+            "category": det.category,
+            "score": float(det.score),
+            "box": [float(x) for x in det.box],
+            "manual": det.manual,
+        }
+        for det in selected_detections
+    ]
+    response = requests.post(
+        f"{API_URL}/segment",
+        files={
+            "file": (
+                uploaded_file.name,
+                uploaded_file.getvalue(),
+                uploaded_file.type or "application/octet-stream",
+            )
+        },
+        data={"detections": json.dumps(detections_payload)},
+        timeout=300,
+    )
+    response.raise_for_status()
+    garments = response.json()["garments"]
+    return [
+        {
+            "id": item["id"],
+            "label": item["label"],
+            "category": item["category"],
+            "image": base64_to_pil(item["image"]),
+        }
+        for item in garments
+    ]
 
 def search_segmented_item(item_image, detection_id):
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as query_file:
-        query_path = query_file.name
-    try:
-        item_image.save(query_path)
-        indices, _, image_scores, query_embedding = engine.search(query_path, k=50)
-        query_metadata = builder.extract_all_metadata(query_embedding, query_path)
-    finally:
-        os.unlink(query_path)
-    faiss_results = engine.enrich_search_result(indices, image_scores=image_scores)
-    rerank_results = reranker.rerank(
-        [dict(result) for result in faiss_results],
-        query_category=query_metadata["category"],
-        query_group=query_metadata["group"],
-        query_color=query_metadata,
+    buffer = io.BytesIO()
+    item_image.save(buffer, format="PNG")
+    response = requests.post(
+        f"{API_URL}/search/image",
+        files={"file": ("garment.png", buffer.getvalue(), "image/png")},
+        timeout=180,
     )
+    response.raise_for_status()
+    data = response.json()
     return {
         "detection_id": detection_id,
         "query_image": item_image,
-        "metadata": query_metadata,
-        "faiss_results": faiss_results,
-        "rerank_results": rerank_results,
-        "recommendations": recommender.recommend(query_metadata=query_metadata, k=4),
+        "metadata": data["query_metadata"],
+        "faiss_results": data["faiss_results"],
+        "rerank_results": data["rerank_results"],
+        "recommendations": data["recommendations"],
     }
 
 
-def show_segmented_items(query_image, detections):
+def show_segmented_items(segmented_items):
     st.markdown("### Segmented Garments")
-    for det in detections:
-        item_image = isolate_detection(query_image, det)
-        preview_image, _ = resize_canvas(
-            item_image, max_height=220, max_width=220
-        )
+    for item in segmented_items:
+        garment_image = item["image"]
+        preview_image, _ = resize_canvas(garment_image, max_height=220, max_width=220)
         garment_col, action_col = st.columns([2.3, 1])
         with garment_col:
             st.image(preview_image, width=preview_image.width)
         with action_col:
-            if st.button("Search similar", key=f"search_segment_{det.id}"):
-                st.session_state.outfit_search = search_segmented_item(
-                    item_image, det.id
-                )
+            if st.button("Search similar", key=f"search_segment_{item['id']}"):
+                st.session_state.outfit_search = search_segmented_item(garment_image, item['id'])
                 st.rerun()
 
 
@@ -439,58 +442,65 @@ recommendations = []
 if not uploaded_file and not text_query:
     st.info("Upload an image, enter a text query, or both.")
 elif text_query and not uploaded_file:
-    indices, _, text_scores, _ = engine.text_search(text_query, k=12)
-    faiss_results = engine.enrich_search_result(indices, text_scores=text_scores)
-    rerank_results = reranker.rerank(faiss_results)
+    response = requests.post(
+        f"{API_URL}/search/text",
+        json={"query": text_query, "k": 12},
+        timeout=60,
+    )
+    response.raise_for_status()
+    data = response.json()
+    faiss_results = data["faiss_results"]
+    rerank_results = data["rerank_results"]
     show_search_results(faiss_results, rerank_results, rank_mode,
                         selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material)
 else:
     query_image = Image.open(uploaded_file).convert("RGB")
     if image_type == "Product photo":
         show_query_image(query_image)
-        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as query_file:
-            query_path = query_file.name
-        try:
-            query_image.save(query_path)
-            text_scores = None
-            if not text_query:
-                indices, _, image_scores, query_embedding = engine.search(
-                    query_path, k=50
-                )
-            else:
-                indices, _, image_scores, text_scores, query_embedding, _ = (
-                    engine.multimodal_search(query_path, text_query, k=50)
-                )
-                st.markdown(f"**Text Query:** {text_query}")
-            query_metadata = builder.extract_all_metadata(query_embedding, query_path)
-        finally:
-            os.unlink(query_path)
+        if not text_query:
+            response = requests.post(
+                f"{API_URL}/search/image",
+                files={
+                    "file": (
+                        uploaded_file.name,
+                        uploaded_file.getvalue(),
+                        uploaded_file.type or "application/octet-stream",
+                    )
+                },
+                timeout=120,
+            )
+        else:
+            response = requests.post(
+                f"{API_URL}/search/multimodal",
+                files={
+                    "file": (
+                        uploaded_file.name,
+                        uploaded_file.getvalue(),
+                        uploaded_file.type or "application/octet-stream",
+                    )
+                },
+                data={"query": text_query},
+                timeout=120,
+            )
+            st.markdown(f"**Text Query:** {text_query}")
+        response.raise_for_status()
+        data = response.json()
+        query_metadata = data["query_metadata"]
+        recommendations = data["recommendations"]
+        faiss_results = data["faiss_results"]
+        rerank_results = data["rerank_results"]
         show_metadata(query_metadata)
-        recommendations = recommender.recommend(query_metadata=query_metadata, k=4)
-        faiss_results = engine.enrich_search_result(
-            indices, image_scores=image_scores, text_scores=text_scores
-        )
-        rerank_results = reranker.rerank(
-            [dict(result) for result in faiss_results],
-            query_category=query_metadata["category"],
-            query_group=query_metadata["group"],
-            query_color=query_metadata,
-        )
         show_search_results(faiss_results, rerank_results, rank_mode,
-                           selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material,
-                           recommendations=recommendations, uploaded_file=uploaded_file)
+                            selected_group, selected_category, selected_color, selected_style, selected_occasion, selected_material,
+                            recommendations=recommendations, uploaded_file=uploaded_file)
     else:
         image_key = hashlib.sha256(uploaded_file.getvalue()).hexdigest()
         if st.session_state.outfit_image_key != image_key:
             reset_outfit_state(image_key)
 
-        segmenter = load_grounded_sam()
         if st.session_state.detections is None:
-            detections = segmenter.detect(query_image)
-            detections = segmenter.category_nms(detections)
-            st.session_state.detections = detections
-        else:
-            detections = st.session_state.detections
+            st.session_state.detections = detect_outfit(uploaded_file)
+        detections = st.session_state.detections
 
         if not st.session_state.edit_boxes:
             has_segments = bool(st.session_state.segmented_detections)
@@ -535,9 +545,7 @@ else:
                         st.rerun()
                     if st.button("Segment selected items", type="primary"):
                         if selected_detections:
-                            st.session_state.segmented_detections = segmenter.segment(
-                                query_image, copy.deepcopy(selected_detections)
-                            )
+                            st.session_state.segmented_detections = segment_outfit(uploaded_file, selected_detections)
                             st.session_state.outfit_search = None
                             st.rerun()
                         else:
@@ -548,9 +556,7 @@ else:
                     st.image(resized_image, caption="Detected fashion items")
                 if has_segments:
                     with segment_col:
-                        show_segmented_items(
-                            query_image, st.session_state.segmented_detections
-                        )
+                        show_segmented_items(st.session_state.segmented_detections)
 
             if st.session_state.outfit_search:
                 search = st.session_state.outfit_search
